@@ -12,11 +12,19 @@ express()
   .get('/times', (req, res) => res.send(showTimes()))
   .listen(PORT, () => console.log(`Listening on ${ PORT }`));
 
-  showTimes = () => {
-    let result = '';
-    const times = process.env.TIMES || 5;
-    for (i = 0; i < times; i++) {
-      result += i + ' ';
-    }
-    return result;
+const { Pool } = require('pg');
+const pool = new Pool({
+  connectionString: process.env.DATABASE_URL,
+  ssl: {
+    rejectUnauthorized: false
   }
+});
+
+showTimes = () => {
+  let result = '';
+  const times = process.env.TIMES || 5;
+  for (i = 0; i < times; i++) {
+    result += i + ' ';
+  }
+  return result;
+}
