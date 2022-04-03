@@ -2,6 +2,7 @@
 <html>
 <head>
   <%- include ("../partials/header.ejs") %>
+  <script src="../../index.js"></script>
 </head>
 
 <body id="home">
@@ -9,9 +10,9 @@
 
   <div class="container">
     <div class="input-group">
-      <input type="search" class="form-control" placeholder="Search for a part">
+      <input id="search" type="search" class="form-control" placeholder="Search for a part">
       <div class="input-group-btn">
-        <button class="btn btn-primary" type="submit">
+        <button class="btn btn-primary" type="submit" onclick="onClick(this)">
           <i class="glyphicon glyphicon-search"></i>
         </button>
       </div>

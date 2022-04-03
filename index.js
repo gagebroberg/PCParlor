@@ -89,3 +89,12 @@ const pool = new Pool({
     rejectUnauthorized: false
   }
 });
+
+function onClick($this) {
+  var val = $this.previousElementSibling.value;
+  if(val == ''){
+      console.log('no input');
+  }else{
+     console.log(val);
+  }
+}
