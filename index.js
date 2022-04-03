@@ -35,6 +35,8 @@ express()
 
 const { Pool } = require('pg');
 const pool = new Pool({
-  connectionString: process.env.DATABASE_URL || 'postgres://hmzgcfxxfupocw:db0051069cbafc30ce2a903328d4611dc7d8da5f385da1113043067f297ba1b5@ec2-18-215-96-22.compute-1.amazonaws.com:5432/d5c9oa1b7747vs',
-  ssl: process.env.DATABASE_URL ? true : false
+  connectionString: process.env.DATABASE_URL,
+  ssl: {
+    rejectUnauthorized: false
+  }
 });
