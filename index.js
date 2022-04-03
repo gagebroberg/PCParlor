@@ -32,7 +32,7 @@ express()
       res.send("Error " + err);
     }
   })
-  .get('/gssdpu', async (req, res) => {
+  .get('/ssd', async (req, res) => {
     try {
       const client = await pool.connect();
       const result = await client.query("SELECT * FROM ssd");
