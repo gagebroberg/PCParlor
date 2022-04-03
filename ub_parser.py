@@ -36,13 +36,78 @@ try:
     
     cur = conn.cursor()
 
+    # get CPUs
     cpus = cleanData('data/CPU_UserBenchmarks.csv')
-    for item in cpus in range (0,10):
+    for item in cpus:
         insert_cpu = '''INSERT INTO comp_parts (type, number, brand, model, rank, benchmark) 
                             VALUES (%s, %s, %s, %s, %s, %s)'''
-        cur.execute(insert_cpu, item)
+        try:
+            cur.execute(insert_cpu, item)
+        except:
+            conn.rollback()
+        else:
+            conn.commit()
+    
+    # get GPUs
+    gpus = cleanData('data/GPU_UserBenchmarks.csv')
+    for item in gpus:
+        insert_gpu = '''INSERT INTO gpu (type, number, brand, model, rank, benchmark) 
+                            VALUES (%s, %s, %s, %s, %s, %s)'''
+        try:
+            cur.execute(insert_gpu, item)
+        except:
+            conn.rollback()
+        else:
+            conn.commit()
+    
+    # get HDDs
+    hdds = cleanData('data/HDD_UserBenchmarks.csv')
+    for item in hdds:
+        insert_hdd = '''INSERT INTO hdd (type, number, brand, model, rank, benchmark) 
+                            VALUES (%s, %s, %s, %s, %s, %s)'''
+        try:
+            cur.execute(insert_hdd, item)
+        except:
+            conn.rollback()
+        else:
+            conn.commit()
+    
+    # get RAMs
+    rams = cleanData('data/RAM_UserBenchmarks.csv')
+    for item in rams:
+        insert_ram = '''INSERT INTO ram (type, number, brand, model, rank, benchmark) 
+                            VALUES (%s, %s, %s, %s, %s, %s)'''
+        try:
+            cur.execute(insert_ram, item)
+        except:
+            conn.rollback()
+        else:
+            conn.commit()
+    
+    # get SSDs
+    ssds = cleanData('data/SSD_UserBenchmarks.csv')
+    for item in ssds:
+        insert_ssd = '''INSERT INTO ssd (type, number, brand, model, rank, benchmark) 
+                            VALUES (%s, %s, %s, %s, %s, %s)'''
+        try:
+            cur.execute(insert_ssd, item)
+        except:
+            conn.rollback()
+        else:
+            conn.commit()
+    
+    # get USBs
+    usbs = cleanData('data/USB_UserBenchmarks.csv')
+    for item in usbs:
+        insert_usb = '''INSERT INTO usb (type, number, brand, model, rank, benchmark) 
+                            VALUES (%s, %s, %s, %s, %s, %s)'''
+        try:
+            cur.execute(insert_usb, item)
+        except:
+            conn.rollback()
+        else:
+            conn.commit()
 
-    conn.commit()
 except Exception as error:
     print(error)
 finally:
