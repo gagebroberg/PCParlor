@@ -2,11 +2,17 @@
 <html>
 <head>
   <%- include ("../partials/header.ejs") %>
-  <script src="../../functions.js"></script>
 </head>
 
 <body id="home">
   <%- include ("../partials/nav.ejs") %>
+
+  <script>
+    onClick = function() {
+      let search = document.getElementById("search").value;
+      console.log(search);
+    };
+  </script>
 
   <div class="container">
     <div class="input-group">
