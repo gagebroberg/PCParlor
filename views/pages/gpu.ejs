@@ -13,6 +13,14 @@
 
 <!-- Outputs the content of the results var passed to the file from index.js as a list -->
 <table>
+    <tr>
+      <th>Type</th>
+      <th>Number</th>
+      <th>Brand</th>
+      <th>Model</th>
+      <th>Rank</th>
+      <th>Benchmark</th>
+    </tr>
     <% results.forEach(function(r) { %>
         <tr>
           <td><%= r.type %></td>
