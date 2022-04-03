@@ -27,3 +27,7 @@
 .dropdown h5 {
   padding: 3px 20px;
 }
+
+th, td {
+  padding: 10px;
+}
