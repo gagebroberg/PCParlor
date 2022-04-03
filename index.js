@@ -10,7 +10,7 @@ express()
   .get('/cpu', async (req, res) => {
     try {
       const client = await pool.connect();
-      const result = await client.query("SELECT * FROM comp_parts WHERE type='CPU'");
+      const result = await client.query("SELECT * FROM cpu");
       const results = { 'results': (result) ? result.rows : null};
       res.render('pages/cpu', results );
       client.release();
@@ -22,7 +22,7 @@ express()
   .get('/gpu', async (req, res) => {
     try {
       const client = await pool.connect();
-      const result = await client.query("SELECT * FROM comp_parts WHERE type='GPU'");
+      const result = await client.query("SELECT * FROM gpu");
       const results = { 'results': (result) ? result.rows : null};
       res.render('pages/gpu', results );
       client.release();
