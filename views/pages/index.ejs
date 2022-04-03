@@ -2,7 +2,7 @@
 <html>
 <head>
   <%- include ("../partials/header.ejs") %>
-  <script src="../../index.js"></script>
+  <script src="../../functions.js"></script>
 </head>
 
 <body id="home">
@@ -12,7 +12,7 @@
     <div class="input-group">
       <input id="search" type="search" class="form-control" placeholder="Search for a part">
       <div class="input-group-btn">
-        <button class="btn btn-primary" type="submit" onclick="onClick(this)">
+        <button class="btn btn-primary" id="search-button" type="submit" onclick="onClick()">
           <i class="glyphicon glyphicon-search"></i>
         </button>
       </div>
