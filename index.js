@@ -100,6 +100,22 @@ express()
       res.send("Error " + err);
     }
   })
+  .get('/signin', async (req, res) => {
+    try {
+      res.render('pages/signin');
+    } catch (err) {
+      console.error(err);
+      res.send("Error " + err);
+    }
+  })
+  .get('/signup', async (req, res) => {
+    try {
+      res.render('pages/signup');
+    } catch (err) {
+      console.error(err);
+      res.send("Error " + err);
+    }
+  })
   .listen(PORT, () => console.log(`Listening on ${ PORT }`));
 
 const { Pool } = require('pg');
