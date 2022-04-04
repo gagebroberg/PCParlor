@@ -29,6 +29,17 @@ th, td {
   display: inline-block;
 }
 
+div.alert-warning {
+  display: none;
+}
+
+div.alert-warning.active {
+  display: block;
+  width: 30%;
+  margin: auto;
+  margin-top: 20px;
+}
+
 header.masthead {
   margin: auto;
   text-align: center;

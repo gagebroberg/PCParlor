@@ -7,29 +7,35 @@
 <body id="home">
   <%- include ("../partials/nav.ejs") %>
 
-  <script>
+  <script> 
     onClick = function() {
       let search = document.getElementById("search").value;
-      console.log(search);
+      let alert = document.getElementById("warning");
+      if (search != '') {
+        location.href = "/search?searchquery=" + search;
+        alert.classList.remove("active");
+      } else if (!alert.classList.contains("active")) {
+        alert.classList.add("active");
+      }
     };
   </script>
 
-  <div class="container">
+  <div class="container" id="search-bar">
     <div class="input-group">
       <input id="search" type="search" class="form-control" placeholder="Search for a part">
       <div class="input-group-btn">
-        <button class="btn btn-primary" id="search-button" type="submit" onclick="onClick()">
+        <button class="btn btn-primary" id="search-button" type="submit" onclick="onClick();">
           <i class="glyphicon glyphicon-search"></i>
         </button>
       </div>
     </div>
+    <div class="alert alert-warning" id="warning" role="alert">
+      Give us something to search for!
+    </div>
   </div>
 
   <script>
-    // Get the input field
     let input = document.getElementById("search");
-
-    // Execute a function when the user releases a key on the keyboard
     input.addEventListener("keyup", function(event) {
       // Number 13 is the "Enter" key on the keyboard
       if (event.keyCode === 13) {

@@ -1,13 +1,26 @@
 const express = require('express');
 const path = require('path');
 const PORT = process.env.PORT || 5000;
-const pages = ['cpu', 'gpu', 'ssd', 'hdd', 'ram', 'usb'];
 
 express()
   .use(express.static(path.join(__dirname, 'public')))
   .set('views', path.join(__dirname, 'views'))
   .set('view engine', 'ejs')
-  .get('/', (req, res) => res.render('pages/index'))
+  .get('/', async (req, res) => {
+    res.render('pages/index');
+  })
+  .get('/search', async (req, res) => {
+    try {
+      const client = await pool.connect();
+      const result = await client.query("SELECT * FROM cpu WHERE model LIKE '%" + req.query['searchquery'] + "%'");
+      const results = { 'results': (result) ? result.rows : null};
+      res.render('pages/cpu', results );
+      client.release();
+    } catch (err) {
+      console.error(err);
+      res.send("Error " + err);
+    }
+  })
   .get('/cpu', async (req, res) => {
     try {
       const client = await pool.connect();
