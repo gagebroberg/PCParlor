@@ -12,13 +12,12 @@ express()
   .get('/search', async (req, res) => {
     try {
       const client = await pool.connect();
-      const cpu_result = await client.query("SELECT * FROM cpu WHERE model LIKE '%" + req.query['searchquery'] + "%'");
-      const gpu_result = await client.query("SELECT * FROM gpu WHERE model LIKE '%" + req.query['searchquery'] + "%'");
-      const ssd_result = await client.query("SELECT * FROM ssd WHERE model LIKE '%" + req.query['searchquery'] + "%'");
-      const hdd_result = await client.query("SELECT * FROM hdd WHERE model LIKE '%" + req.query['searchquery'] + "%'");
-      const ram_result = await client.query("SELECT * FROM ram WHERE model LIKE '%" + req.query['searchquery'] + "%'");
-      const usb_result = await client.query("SELECT * FROM usb WHERE model LIKE '%" + req.query['searchquery'] + "%'");
-      const result = cpu_result.merge(gpu_result).merge(ssd_result).merge(hdd_result).merge(ram_result).merge(usb_result);
+      const result = await client.query("SELECT * FROM cpu WHERE model LIKE '%" + req.query['searchquery'] + "%' UNION"
+                                      + "SELECT * FROM gpu WHERE model LIKE '%" + req.query['searchquery'] + "%' UNION"
+                                      + "SELECT * FROM ssd WHERE model LIKE '%" + req.query['searchquery'] + "%' UNION"
+                                      + "SELECT * FROM hdd WHERE model LIKE '%" + req.query['searchquery'] + "%' UNION"
+                                      + "SELECT * FROM ram WHERE model LIKE '%" + req.query['searchquery'] + "%' UNION"
+                                      + "SELECT * FROM usb WHERE model LIKE '%" + req.query['searchquery'] + "%'");
       const results = { 'results': (result) ? result.rows : null};
       res.render('pages/cpu', results );
       client.release();
