@@ -11,14 +11,15 @@ express()
   })
   .get('/search', async (req, res) => {
     try {
-      // TODO: Dumps into cpu route right now no matter what. Probably want search route to display "Products"
+      // TODO: Dumps into cpu route right now no matter what. Probably want search route to display "Products". Also only searches model name.
       const client = await pool.connect();
       const result = await client.query("SELECT * FROM cpu WHERE LOWER(model) LIKE LOWER('%" + req.query['searchquery'] + "%') UNION "
                                       + "SELECT * FROM gpu WHERE LOWER(model) LIKE LOWER('%" + req.query['searchquery'] + "%') UNION "
                                       + "SELECT * FROM ssd WHERE LOWER(model) LIKE LOWER('%" + req.query['searchquery'] + "%') UNION "
                                       + "SELECT * FROM hdd WHERE LOWER(model) LIKE LOWER('%" + req.query['searchquery'] + "%') UNION "
                                       + "SELECT * FROM ram WHERE LOWER(model) LIKE LOWER('%" + req.query['searchquery'] + "%') UNION "
-                                      + "SELECT * FROM usb WHERE LOWER(model) LIKE LOWER('%" + req.query['searchquery'] + "%')");
+                                      + "SELECT * FROM usb WHERE LOWER(model) LIKE LOWER('%" + req.query['searchquery'] + "%') " 
+                                      + "ORDER BY rank");
       const results = { 'results': (result) ? result.rows : null};
       res.render('pages/cpu', results );
       client.release();
