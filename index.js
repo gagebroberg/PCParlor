@@ -12,7 +12,13 @@ express()
   .get('/search', async (req, res) => {
     try {
       const client = await pool.connect();
-      const result = await client.query("SELECT * FROM cpu WHERE model LIKE '%" + req.query['searchquery'] + "%'");
+      const cpu_result = await client.query("SELECT * FROM cpu WHERE model LIKE '%" + req.query['searchquery'] + "%'");
+      const gpu_result = await client.query("SELECT * FROM gpu WHERE model LIKE '%" + req.query['searchquery'] + "%'");
+      const ssd_result = await client.query("SELECT * FROM ssd WHERE model LIKE '%" + req.query['searchquery'] + "%'");
+      const hdd_result = await client.query("SELECT * FROM hdd WHERE model LIKE '%" + req.query['searchquery'] + "%'");
+      const ram_result = await client.query("SELECT * FROM ram WHERE model LIKE '%" + req.query['searchquery'] + "%'");
+      const usb_result = await client.query("SELECT * FROM usb WHERE model LIKE '%" + req.query['searchquery'] + "%'");
+      const result = Promise.all([cpu_result, gpu_result, ssd_result, hdd_result, ram_result, usb_result]);
       const results = { 'results': (result) ? result.rows : null};
       res.render('pages/cpu', results );
       client.release();
