@@ -18,7 +18,7 @@ express()
       const hdd_result = await client.query("SELECT * FROM hdd WHERE model LIKE '%" + req.query['searchquery'] + "%'");
       const ram_result = await client.query("SELECT * FROM ram WHERE model LIKE '%" + req.query['searchquery'] + "%'");
       const usb_result = await client.query("SELECT * FROM usb WHERE model LIKE '%" + req.query['searchquery'] + "%'");
-      const result = Promise.all([cpu_result, gpu_result, ssd_result, hdd_result, ram_result, usb_result]);
+      const result = cpu_result.merge(gpu_result).merge(ssd_result).merge(hdd_result).merge(ram_result).merge(usb_result);
       const results = { 'results': (result) ? result.rows : null};
       res.render('pages/cpu', results );
       client.release();
