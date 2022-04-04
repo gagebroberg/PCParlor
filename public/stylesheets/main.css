@@ -7,6 +7,14 @@ body#home {
   background-size: cover;
 }
 
+.nav {
+  filter: brightness(1.5);
+}
+
+.dropdown-menu {
+  filter: brightness(0.67);
+}
+
 .dropdown h5 {
   padding: 3px 20px;
 }
