@@ -21,7 +21,7 @@ express()
                                       + "SELECT * FROM usb WHERE LOWER(model) LIKE LOWER('%" + req.query['searchquery'] + "%') " 
                                       + "ORDER BY rank");
       const results = { 'results': (result) ? result.rows : null};
-      res.render('pages/cpu', results );
+      res.render('pages/search', results );
       client.release();
     } catch (err) {
       console.error(err);
