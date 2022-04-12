@@ -6,6 +6,14 @@
     margin: auto;
 }
 
+.dropdown-menu {
+    filter: brightness(0.67);
+  }
+  
+  .dropdown h5 {
+    padding: 3px 20px;
+  }
+
 .jumbotron#logo {
     background-image: url("../assets/img/tamuOAL.jpeg");
     background-repeat: no-repeat;
