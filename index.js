@@ -124,6 +124,14 @@ express()
       res.send("Error " + err);
     }
   })
+  .get('/howto', async (req, res) => {
+    try {
+      res.render('pages/howto');
+    } catch (err) {
+      console.error(err);
+      res.send("Error " + err);
+    }
+  })
   .listen(PORT, () => console.log(`Listening on ${ PORT }`));
 
 const { Pool } = require('pg');
