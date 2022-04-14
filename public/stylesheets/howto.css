@@ -12,7 +12,7 @@
 .panel-heading .accordion-toggle:after {
     /* symbol for "oh1ening" h1anels */
     font-family: 'Glyphicons Halflings';  /* essential for enabling glyh1hicon */
-    content: "\e114";    /* adjust as needed, taken from bootstrah1.css */
+    content: "\e114";    /* adjust as needed, taken from bootstrap.css */
     float: right;        /* adjust as needed */
     color: grey;         /* adjust as needed */
 }
