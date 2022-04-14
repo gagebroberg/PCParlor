@@ -1,21 +1,23 @@
 <!-- Outputs the content of the results var passed to the file from index.js as a list -->
-<table class="table" style="border: solid #ddd 1px; border-radius: 10px; overflow: hidden;">
-    <tr>
-      <th>Type</th>
-      <th>Number</th>
-      <th>Brand</th>
-      <th>Model</th>
-      <th>Rank</th>
-      <th>Benchmark</th>
-    </tr>
-  <% results.forEach(function(r) { %>
-    <tr>
-      <td><%= r.type %></td>
-      <td><%= r.number %></td>
-      <td><%= r.brand %></td>
-      <td><%= r.model %></td>
-      <td><%= r.rank %></td>
-      <td><%= r.benchmark %></td>
-    </tr>
-  <% }); %>
-</table>
+<div id="table" style="width: 50%; margin:auto; border: solid #ddd 2px; border-radius: 10px; overflow: hidden;">
+    <table class="table">
+        <tr>
+        <th>Type</th>
+        <th>Number</th>
+        <th>Brand</th>
+        <th>Model</th>
+        <th>Rank</th>
+        <th>Benchmark</th>
+        </tr>
+    <% results.forEach(function(r) { %>
+        <tr>
+        <td><%= r.type %></td>
+        <td><%= r.number %></td>
+        <td><%= r.brand %></td>
+        <td><%= r.model %></td>
+        <td><%= r.rank %></td>
+        <td><%= r.benchmark %></td>
+        </tr>
+    <% }); %>
+    </table>
+</div>
