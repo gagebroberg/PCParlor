@@ -1,6 +1,16 @@
+require('dotenv').config()
 const express = require('express');
 const path = require('path');
+const { Pool } = require('pg');
+const { ConsoleMessage } = require('puppeteer');
 const PORT = process.env.PORT || 5000;
+
+pool = new Pool({
+  connectionString: process.env.DATABASE_URL,
+  ssl: {
+      rejectUnauthorized: false
+    }
+});
 
 express()
   .use(express.static(path.join(__dirname, 'public')))
@@ -11,6 +21,7 @@ express()
   })
   .get('/search', async (req, res) => {
     try {
+
       // TODO: Dumps into cpu route right now no matter what. Probably want search route to display "Products". Also only searches model name.
       const client = await pool.connect();
       const result = await client.query("SELECT * FROM cpu WHERE LOWER(model) LIKE LOWER('%" + req.query['searchquery'] + "%') UNION "
@@ -134,10 +145,3 @@ express()
   })
   .listen(PORT, () => console.log(`Listening on ${ PORT }`));
 
-const { Pool } = require('pg');
-const pool = new Pool({
-  connectionString: process.env.DATABASE_URL,
-  ssl: {
-    rejectUnauthorized: false
-  }
-});
