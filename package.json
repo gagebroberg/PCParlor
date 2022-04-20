@@ -20,7 +20,8 @@
     "pg": "^8.7.3",
     "puppeteer": "^13.5.2",
     "require": "^2.4.20",
-    "requirejs": "^2.3.6"
+    "requirejs": "^2.3.6",
+    "xml2js": "^0.4.23"
   },
   "devDependencies": {
     "got": "^11.3.0",
