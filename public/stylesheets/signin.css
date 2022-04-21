@@ -1,0 +1,37 @@
+html,body {
+    height:100%;
+    width:100%;
+    margin:0;
+    background-image: url("../assets/img/loginwallpaper.jpeg");
+}
+body {
+    display:flex;
+}
+form {
+    margin:auto;
+    padding: 50px;
+    border-radius: 10px;
+    width: 25%;
+    background-color: rgb(255, 255, 255);
+}
+h3 {
+    padding: 20px;
+    padding-bottom: 30px;
+}
+a {
+    color: black;
+}
+#email, #password {
+    border-bottom: solid black !important;
+    border-radius: 0;
+}
+.gradient-custom-4 {
+    /* fallback for old browsers */
+    background: #84fab0;
+
+    /* Chrome 10-25, Safari 5.1-6 */
+    background: -webkit-linear-gradient(to right, rgba(132, 250, 176, 1), rgba(143, 211, 244, 1));
+
+    /* W3C, IE 10+/ Edge, Firefox 16+, Chrome 26+, Opera 12+, Safari 7+ */
+    background: linear-gradient(to right, rgba(132, 250, 176, 1), rgba(143, 211, 244, 1))
+}
