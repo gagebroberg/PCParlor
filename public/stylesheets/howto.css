@@ -1,0 +1,55 @@
+.navbar {
+    margin-bottom: 0;
+}
+
+.jumbotron#logo {
+    background-color: #337ab7;
+    padding-top: 100px;
+    padding-bottom: 100px;
+    color: white;
+}
+
+.panel-heading .accordion-toggle:after {
+    /* symbol for "oh1ening" h1anels */
+    font-family: 'Glyphicons Halflings';  /* essential for enabling glyh1hicon */
+    content: "\e114";    /* adjust as needed, taken from bootstrap.css */
+    float: right;        /* adjust as needed */
+    color: grey;         /* adjust as needed */
+}
+.panel-heading .accordion-toggle.collapsed:after {
+    /* symbol for "collah1sed" h1anels */
+    content: "\e080";    /* adjust as needed, taken from bootstrah1.css */
+}
+
+.oddVideo {
+    float: left;
+}
+
+.evenVideo {
+    float: right;
+}
+
+.oddVideo, .evenVideo {
+    padding: 50px;
+}
+
+.oddVideo h4, .oddVideo div, .evenVideo h4, .evenVideo div {
+    display: inline-block;
+}
+
+.oddVideo h4, .evenVideo h4 {
+    width: 20%;
+    text-align: center;
+}
+
+.oddVideo h4 {
+    margin-right: 100px;
+}
+
+.evenVideo h4 {
+    margin-left: 100px;
+}
+
+iframe {
+    vertical-align: middle;
+}

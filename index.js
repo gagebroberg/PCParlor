@@ -1,6 +1,18 @@
+require('dotenv').config()
 const express = require('express');
 const path = require('path');
+const { Pool } = require('pg');
+const { ConsoleMessage } = require('puppeteer');
 const PORT = process.env.PORT || 5000;
+const ebaySearch = require('./ebaySearch.js').ebaySearch;
+
+
+pool = new Pool({
+  connectionString: process.env.DATABASE_URL,
+  ssl: {
+      rejectUnauthorized: false
+    }
+});
 
 express()
   .use(express.static(path.join(__dirname, 'public')))
@@ -11,6 +23,7 @@ express()
   })
   .get('/search', async (req, res) => {
     try {
+
       // TODO: Dumps into cpu route right now no matter what. Probably want search route to display "Products". Also only searches model name.
       const client = await pool.connect();
       const result = await client.query("SELECT * FROM cpu WHERE LOWER(model) LIKE LOWER('%" + req.query['searchquery'] + "%') UNION "
@@ -21,7 +34,7 @@ express()
                                       + "SELECT * FROM usb WHERE LOWER(model) LIKE LOWER('%" + req.query['searchquery'] + "%') " 
                                       + "ORDER BY rank");
       const results = { 'results': (result) ? result.rows : null};
-      res.render('pages/cpu', results );
+      res.render('pages/search', results );
       client.release();
     } catch (err) {
       console.error(err);
@@ -116,12 +129,68 @@ express()
       res.send("Error " + err);
     }
   })
+  .get('/about', async (req, res) => {
+    try {
+      res.render('pages/about');
+    } catch (err) {
+      console.error(err);
+      res.send("Error " + err);
+    }
+  })
+  .get('/howto', async (req, res) => {
+    try {
+      res.render('pages/howto');
+    } catch (err) {
+      console.error(err);
+      res.send("Error " + err);
+    }
+  })
+  .get('/details/:search', async (req, res) => {
+    try {
+      let searchTerm = req.params['search'];
+      ebaySearch(searchTerm)
+      .then((searchResponse) => {
+        let listings = searchResponse['findItemsAdvancedResponse']['searchResult'][0]['item'];
+        
+        let item = listings[0];
+        let title = item['title'][0];
+        let picture = item['galleryURL'][0];
+        let link = item['viewItemURL'][0];
+        let location = item['location'][0];
+        let country = item['country'][0];
+        let shippingInfo = item['shippingInfo'][0];
+        
+        let sellingStatus = item['sellingStatus'];
+        let price = sellingStatus[0]['currentPrice'][0]['_']
+        let currency = sellingStatus[0]['currentPrice'][0]['$']['currencyId'];
+
+        let ebayData = {
+          'title': title,
+          'picture': picture,
+          'link': link,
+          'location': location,
+          'country': country,
+          'price': price,
+          'currency': currency
+        }
+
+        // console.log(ebayData);
+
+        res.render('pages/details', ebayData);
+        
+        // let two_listings = listings.slice(0, 2);
+        // let string_listings = JSON.stringify(two_listings);
+        // res.render('pages/details', {'ebayStuff': string_listings});
+      })
+      .catch((err) => {
+        throw err;
+      });
+      
+      // res.render('pages/details', {'ebayStuff': req.params['search']});
+    } catch (error) {
+      console.error(err);
+      res.send("Error " + err);
+    }
+  })
   .listen(PORT, () => console.log(`Listening on ${ PORT }`));
 
-const { Pool } = require('pg');
-const pool = new Pool({
-  connectionString: process.env.DATABASE_URL,
-  ssl: {
-    rejectUnauthorized: false
-  }
-});

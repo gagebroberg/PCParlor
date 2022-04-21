@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <%- include ("../partials/header.ejs") %>
+</head>
+
+<body>
+
+<%- include ("../partials/nav.ejs") %>
+
+<div class="container">
+<h2>Search Results</h2>
+
+<!-- Outputs the content of the results var passed to the file from index.js as a list -->
+<table>
+      <tr>
+        <th>Type</th>
+        <th>Number</th>
+        <th>Brand</th>
+        <th>Model</th>
+        <th>Rank</th>
+        <th>Benchmark</th>
+      </tr>
+    <% results.forEach(function(r) { %>
+      <tr>
+        <td><%= r.type %></td>
+        <td><%= r.number %></td>
+        <td><%= r.brand %></td>
+        <td><%= r.model %></td>
+        <td><%= r.rank %></td>
+        <td><%= r.benchmark %></td>
+      </tr>
+    <% }); %>
+</table>
+
+</div>
+
+</body>
+</html>
