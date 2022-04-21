@@ -4,6 +4,8 @@ const path = require('path');
 const { Pool } = require('pg');
 const { ConsoleMessage } = require('puppeteer');
 const PORT = process.env.PORT || 5000;
+const ebaySearch = require('./ebaySearch.js').ebaySearch;
+
 
 pool = new Pool({
   connectionString: process.env.DATABASE_URL,
@@ -139,6 +141,53 @@ express()
     try {
       res.render('pages/howto');
     } catch (err) {
+      console.error(err);
+      res.send("Error " + err);
+    }
+  })
+  .get('/details/:search', async (req, res) => {
+    try {
+      let searchTerm = req.params['search'];
+      ebaySearch(searchTerm)
+      .then((searchResponse) => {
+        let listings = searchResponse['findItemsAdvancedResponse']['searchResult'][0]['item'];
+        
+        let item = listings[0];
+        let title = item['title'][0];
+        let picture = item['galleryURL'][0];
+        let link = item['viewItemURL'][0];
+        let location = item['location'][0];
+        let country = item['country'][0];
+        let shippingInfo = item['shippingInfo'][0];
+        
+        let sellingStatus = item['sellingStatus'];
+        let price = sellingStatus[0]['currentPrice'][0]['_']
+        let currency = sellingStatus[0]['currentPrice'][0]['$']['currencyId'];
+
+        let ebayData = {
+          'title': title,
+          'picture': picture,
+          'link': link,
+          'location': location,
+          'country': country,
+          'price': price,
+          'currency': currency
+        }
+
+        // console.log(ebayData);
+
+        res.render('pages/details', ebayData);
+        
+        // let two_listings = listings.slice(0, 2);
+        // let string_listings = JSON.stringify(two_listings);
+        // res.render('pages/details', {'ebayStuff': string_listings});
+      })
+      .catch((err) => {
+        throw err;
+      });
+      
+      // res.render('pages/details', {'ebayStuff': req.params['search']});
+    } catch (error) {
       console.error(err);
       res.send("Error " + err);
     }
