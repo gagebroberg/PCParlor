@@ -19,8 +19,8 @@ body#home {
   padding: 3px 20px;
 }
 
-th, td {
-  padding: 10px;
+tr:hover {
+  background-color: lightgrey;
 }
 
 .input-group {
