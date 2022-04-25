@@ -20,51 +20,58 @@ async function facebookSearch(searchTerm) {
   await page.goto(url);
   //await page.waitFor("div[data-testid='marketplace_search_feed_content']");
   await page.waitForTimeout(1000);
-  const items = await page.evaluate(() => {
-      var titlesAndLocations = document.getElementsByClassName('a8c37x1j ni8dbmo4 stjgntxs l9j0dhe7'); //start titles at 14
-      var titles = [];
-      var prices = document.getElementsByClassName('d2edcug0 hpfvmrgz qv66sw1b c1et5uql lr9zc1uh a8c37x1j fe6kdd0r mau55g9w c8b282yb keod5gw0 nxhoafnm aigsh9s9 d3f4x2em mdeji52x a5q79mjw g1cxx5fr lrazzd5p oo9gr5id');
-      var locations = document.getElementsByClassName('a8c37x1j ni8dbmo4 stjgntxs l9j0dhe7 ltmttdrg g0qnabr5 ojkyduve');
-      var links = document.links
-      var productLinks=[];
-      var result = [];
-      var titleStartIndex = 0;
-      for(let i = 0; i < titlesAndLocations.length; i++) {
-        if(titlesAndLocations[i].textContent.indexOf("Notify Me") > -1)
-          titleStartIndex = i+1;
-      }
 
-      for(let i = titleStartIndex; i < titlesAndLocations.length; i += 2) {
-        titles.push(titlesAndLocations[i]);
-      }
+  // function used by puppeteer to get facebook listings
+  function getItems(){
+    var titlesAndLocations = document.getElementsByClassName('a8c37x1j ni8dbmo4 stjgntxs l9j0dhe7'); //start titles at 14
+    var titles = [];
+    var prices = document.getElementsByClassName('d2edcug0 hpfvmrgz qv66sw1b c1et5uql lr9zc1uh a8c37x1j fe6kdd0r mau55g9w c8b282yb keod5gw0 nxhoafnm aigsh9s9 d3f4x2em mdeji52x a5q79mjw g1cxx5fr lrazzd5p oo9gr5id');
+    var locations = document.getElementsByClassName('a8c37x1j ni8dbmo4 stjgntxs l9j0dhe7 ltmttdrg g0qnabr5 ojkyduve');
+    var links = document.links
+    var productLinks=[];
+    var result = [];
+    var titleStartIndex = 0;
+    for(let i = 0; i < titlesAndLocations.length; i++) {
+      if(titlesAndLocations[i].textContent.indexOf("Notify Me") > -1)
+        titleStartIndex = i+1;
+    }
 
-      for(let i = 0; i < links.length; i++) {
-        if(links[i].href.indexOf("post") > -1)
-          productLinks.push(links[i].href.toString());
-      }
+    for(let i = titleStartIndex; i < titlesAndLocations.length; i += 2) {
+      titles.push(titlesAndLocations[i]);
+    }
 
-      for(let i = 0; i < prices.length; i++) {
-        var tempTitle;
-        var tempPrice;
-        var tempLocation;
-        var tempLink;
-        tempTitle = titles[i].textContent;
-        tempPrice = prices[i].textContent;
-        tempLocation = locations[i].textContent;
-        tempLink = productLinks[i];
-        
-        const product = {
-          title: tempTitle,
-          price: tempPrice,
-          location: tempLocation,
-          link: tempLink
-        };
-       result.push(product);
-      }
+    for(let i = 0; i < links.length; i++) {
+      if(links[i].href.indexOf("post") > -1)
+        productLinks.push(links[i].href.toString());
+    }
+
+    for(let i = 0; i < prices.length; i++) {
+      var tempTitle;
+      var tempPrice;
+      var tempLocation;
+      var tempLink;
+      tempTitle = titles[i].textContent;
+      tempPrice = prices[i].textContent;
+      tempLocation = locations[i].textContent;
+      tempLink = productLinks[i];
       
-      return JSON.stringify(result);
-  });
+      const product = {
+        title: tempTitle,
+        price: tempPrice,
+        location: tempLocation,
+        link: tempLink
+      };
+     result.push(product);
+    }
+    
+    return JSON.stringify(result);
+  }
 
+  const items = await page.evaluate(getItems);
+  // resend request up to 3 times
+  for (let i = 0; (i < 3) && (items.length == 0); i++){
+    items = await page.evaluate(getItems);    
+  }
   
   //convert big string into array of items
   var parsingProducts = items.split('},{');
