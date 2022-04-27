@@ -4,25 +4,29 @@
     }
 </script>
 <!-- Outputs the content of the results var passed to the file from index.js as a list -->
-<div id="table" style="border: solid #ddd 2px; border-radius: 10px; overflow: hidden;">
-    <table class="table">
-        <tr class="header">
-            <th>Type <i class="fa-solid fa-caret-down"></i></th>
-            <th>Number <i class="fa-solid fa-caret-down"></i></th>
-            <th>Brand <i class="fa-solid fa-caret-down"></i></th>
-            <th>Model <i class="fa-solid fa-caret-down"></i></th>
-            <th>Rank <i class="fa-solid fa-caret-down"></i></th>
-            <th>Benchmark <i class="fa-solid fa-caret-down"></i></th>
-        </tr>
-    <% results.forEach(function(r) { %>
-        <tr class="data" onClick="newRoute('<%= r.model %>')">
-            <td><%= r.type %></td>
-            <td><%= r.number %></td>
-            <td><%= r.brand %></td>
-            <td><%= r.model %></td>
-            <td><%= r.rank %></td>
-            <td><%= r.benchmark %></td>
-        </tr>
+<div style="border: solid #ddd 2px; border-radius: 10px; overflow: hidden;">
+    <table class="table" id="table">
+        <thead>
+            <tr class="header">
+                <th onclick="">Type <i class="fa-solid fa-caret-down" ></i></th>
+                <th onclick="">Number <i class="fa-solid fa-caret-down"></i></th>
+                <th onclick="">Brand <i class="fa-solid fa-caret-down"></i></th>
+                <th onclick="">Model <i class="fa-solid fa-caret-down"></i></th>
+                <th onclick="">Rank <i class="fa-solid fa-caret-down"></i></th>
+                <th onclick="">Benchmark <i class="fa-solid fa-caret-down"></i></th>
+            </tr>
+        </thead>
+    <% results.forEach(function(item) { %>
+        <tbody>
+            <tr class="data" onclick="newRoute('<%= item.model %>')">
+                <td><%= item.type %></td>
+                <td><%= item.number %></td>
+                <td><%= item.brand %></td>
+                <td><%= item.model %></td>
+                <td><%= item.rank %></td>
+                <td><%= item.benchmark %></td>
+            </tr>
+        </tbody>
     <% }); %>
     </table>
 </div>

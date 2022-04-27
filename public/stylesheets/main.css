@@ -1,27 +1,92 @@
-.jumbotron {
-  background: #532F8C;
-  color: white;
-  padding-bottom: 80px; }
-  .jumbotron .btn-primary {
-    background: #845ac7;
-    border-color: #845ac7; }
-    .jumbotron .btn-primary:hover {
-      background: #7646c1; }
-  .jumbotron p {
-    color: #d9ccee;
-    max-width: 75%;
-    margin: 1em auto 2em; }
-  .navbar + .jumbotron {
-    margin-top: -20px; }
-  .jumbotron .lang-logo {
-    display: block;
-    background: #B01302;
-    border-radius: 50%;
-    overflow: hidden;
-    width: 100px;
-    height: 100px;
-    margin: auto;
-    border: 2px solid white; }
-    .jumbotron .lang-logo img {
-      max-width: 100%; }
+body#home {
+  height: 100vh;
+  background-image: url("../assets/img/landing-background.png");
+  background-repeat: no-repeat;
+  background-attachment: scroll;
+  background-position: center center;
+  background-size: cover;
+}
 
+.nav {
+  filter: brightness(1.5);
+}
+
+.dropdown-menu {
+  filter: brightness(0.67);
+}
+
+.dropdown h5 {
+  padding: 3px 20px;
+}
+
+tr.data:hover {
+  background-color: lightgrey;
+}
+
+th {
+  cursor: pointer;
+}
+
+.input-group {
+  margin: auto;
+  margin-top: 20px;
+  width: 50%;
+}
+
+.input-group input {
+  display: inline-block;
+}
+
+.input-group button {  
+  display: inline-block;
+}
+
+div.alert-warning {
+  display: none;
+}
+
+div.alert-warning.active {
+  display: block;
+  width: 30%;
+  margin: auto;
+  margin-top: 20px;
+}
+
+header.masthead {
+  margin: auto;
+  text-align: center;
+  color: white;
+}
+
+header.masthead .masthead-subheading {
+  font-size: 1.5rem;
+  font-style: italic;
+  line-height: 1.5rem;
+  margin-bottom: 25px;
+}
+
+header.masthead .masthead-heading {
+  font-size: 3.25rem;
+  font-weight: 700;
+  line-height: 3.25rem;
+  /* margin-bottom: 2rem; */
+}
+
+@media (min-width: 768px) {
+  header.masthead {
+    padding-top: 25rem;
+    padding-bottom: 12.5rem;
+  }
+  header.masthead .masthead-subheading {
+    font-size: 2.25rem;
+    font-style: italic;
+    line-height: 2.25rem;
+    margin-bottom: 2rem;
+  }
+  header.masthead .masthead-heading {
+    font-size: 4.5rem;
+    font-weight: 700;
+    line-height: 4.5rem;
+    margin-bottom: 4rem;
+  }
+}

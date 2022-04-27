@@ -3,13 +3,16 @@ const { range } = require('express/lib/request');
 const path = require('path');
 const PORT = process.env.PORT || 5000;
 const ebaySearch = require('./ebaySearch.js').ebaySearch;
+const youtubeSearch = require('./youtubeData.js').youtubeData;
+const facebookSearch = require('./facebookSearch.js').facebookSearch;
 const { Pool } = require('pg');
 const { ConsoleMessage } = require('puppeteer');
 pool = new Pool({
   connectionString: process.env.DATABASE_URL,
-  ssl: {
-      rejectUnauthorized: false
-    }
+  // ssl: {
+  //     rejectUnauthorized: false
+  //   }
+  ssl: true
 });
 
 express()
@@ -21,7 +24,6 @@ express()
   })
   .get('/search', async (req, res) => {
     try {
-      // TODO: Dumps into cpu route right now no matter what. Probably want search route to display "Products". Also only searches model name.
       const client = await pool.connect();
       const result = await client.query("SELECT * FROM cpu WHERE LOWER(model) LIKE LOWER('%" + req.query['searchquery'] + "%') UNION "
                                       + "SELECT * FROM gpu WHERE LOWER(model) LIKE LOWER('%" + req.query['searchquery'] + "%') UNION "
@@ -43,7 +45,7 @@ express()
       const client = await pool.connect();
       const result = await client.query("SELECT * FROM cpu");
       const results = { 'results': (result) ? result.rows : null};
-      res.render('pages/cpu', results );
+      res.render('pages/cpu', results);
       client.release();
     } catch (err) {
       console.error(err);
@@ -151,20 +153,29 @@ express()
         let listings = searchResponse['findItemsAdvancedResponse']['searchResult'][0]['item'];
         
         for (let itemnum = 0; itemnum < 100; itemnum++) {
+          if (listings == undefined) {
+            break;
+          }
           let item = listings[itemnum];
           if (item == undefined) {
             break;
           }
+          let id = item['itemId'][0];
           let title = item['title'][0];
           let picture = item['galleryURL'][0];
           let link = item['viewItemURL'][0];
           let location = item['location'][0];
+          location = location.replace(/,/g, ", ");
           let country = item['country'][0];        
           let sellingStatus = item['sellingStatus'];
-          let price = sellingStatus[0]['currentPrice'][0]['_']
+          let price = "$" + sellingStatus[0]['currentPrice'][0]['_']
+          if (/\.[0-9]$/.test(price)) {
+            price = price + "0";
+          }
           let currency = sellingStatus[0]['currentPrice'][0]['$']['currencyId'];
 
           ebayData[itemnum] = {
+            'id': id,
             'title': title,
             'picture': picture,
             'link': link,
@@ -174,58 +185,146 @@ express()
             'currency': currency
           }
         }
-        res.render('pages/product', {'data': ebayData, 'itemCount': ebayData.length, 'searchTerm': searchTerm});
+
+        facebookSearch(searchTerm)
+        .then((facebookData) => {
+          res.render('pages/product', {
+            'ebayData': ebayData, 
+            'ebayItemCount': ebayData.length,
+            'facebookData': facebookData, 
+            'facebookItemCount': facebookData.length, 
+            'searchTerm': searchTerm});
+        })
+        .catch((err) => {
+          console.error(err);
+        })
       })
       .catch((err) => {
         throw err;
       });
+
     
       } catch (err) {
       console.error(err);
       res.send("Error " + err);
     }
   })
-  .get('/details/:search', async (req, res) => {
+  .get('/details/:searchItem/:searchId', async (req, res) => {
     try {
-      let searchTerm = req.params['search'];
-      let ebayData = new Array();
+      // TODO: Change from just CPU to all 
+      const client = await pool.connect();
+      // query grab the rank of the item model
+      var cpuRank = await client.query("SELECT rank FROM cpu WHERE LOWER(model) LIKE LOWER('%" + req.params['searchItem'] + "%')");
+      var gpuRank = await client.query("SELECT rank FROM gpu WHERE LOWER(model) LIKE LOWER('%" + req.params['searchItem'] + "%')");
+      var ssdRank = await client.query("SELECT rank FROM ssd WHERE LOWER(model) LIKE LOWER('%" + req.params['searchItem'] + "%')");
+      var hddRank = await client.query("SELECT rank FROM hdd WHERE LOWER(model) LIKE LOWER('%" + req.params['searchItem'] + "%')");
+      var ramRank = await client.query("SELECT rank FROM ram WHERE LOWER(model) LIKE LOWER('%" + req.params['searchItem'] + "%')");
+      var usbRank = await client.query("SELECT rank FROM usb WHERE LOWER(model) LIKE LOWER('%" + req.params['searchItem'] + "%')");
+      var result;
+      console.log(cpuRank['rowCount']);
+      if (cpuRank['rowCount'] != 0) {
+        result = await client.query("SELECT * FROM cpu WHERE rank > " + cpuRank.rows[0]['rank'] + " LIMIT 3;"); 
+      } else if (gpuRank['rowCount'] != 0) {
+        result = await client.query("SELECT * FROM gpu WHERE rank > " + gpuRank.rows[0]['rank'] + " LIMIT 3;"); 
+      } else if (ssdRank['rowCount'] != 0) {
+        result = await client.query("SELECT * FROM ssd WHERE rank > " + ssdRank.rows[0]['rank'] + " LIMIT 3;"); 
+      } else if (hddRank['rowCount'] != 0) {
+        result = await client.query("SELECT * FROM hdd WHERE rank > " + hddRank.rows[0]['rank'] + " LIMIT 3;"); 
+      } else if (ramRank['rowCount'] != 0) {
+        result = await client.query("SELECT * FROM ram WHERE rank > " + ramRank.rows[0]['rank'] + " LIMIT 3;"); 
+      } else if (usbRank['rowCount'] != 0) {
+        result = await client.query("SELECT * FROM usb WHERE rank > " + usbRank.rows[0]['rank'] + " LIMIT 3;"); 
+      }
+      // console.log(result.rows)
+      let searchTerm = req.params['searchId'];
       ebaySearch(searchTerm, 1)
-      .then((searchResponse) => {
+      .then(async (searchResponse) => {
         let listings = searchResponse['findItemsAdvancedResponse']['searchResult'][0]['item'];
-        
-        for (let itemnum = 0; itemnum < 100; itemnum++) {
-          let item = listings[itemnum];
-          if (item == undefined) {
-            break;
-          }
-          let title = item['title'][0];
-          let picture = item['galleryURL'][0];
-          let link = item['viewItemURL'][0];
-          let location = item['location'][0];
-          let country = item['country'][0];        
-          let sellingStatus = item['sellingStatus'];
-          let price = sellingStatus[0]['currentPrice'][0]['_']
-          let currency = sellingStatus[0]['currentPrice'][0]['$']['currencyId'];
+        let item = listings[0];
+        let title = item['title'][0];
+        let picture = item['galleryURL'][0];
+        picture = picture.replace("140.jpg", "500.jpg")
+        let link = item['viewItemURL'][0];
+        let location = item['location'][0];
+        location = location.replace(/,/g, ", ");
+        let country = item['country'][0];        
+        let sellingStatus = item['sellingStatus'];
+        let price = "$" + sellingStatus[0]['currentPrice'][0]['_']
+        let currency = sellingStatus[0]['currentPrice'][0]['$']['currencyId'];
 
-          ebayData[itemnum] = {
-            'title': title,
-            'picture': picture,
-            'link': link,
-            'location': location,
-            'country': country,
-            'price': price,
-            'currency': currency
-          }
+        ebayData = {
+          'title': title,
+          'picture': picture,
+          'link': link,
+          'location': location,
+          'country': country,
+          'price': price,
+          'currency': currency
         }
-        res.render('pages/details', {'data': ebayData, 'itemCount': ebayData.length, 'searchTerm': searchTerm});
+
+        youtubeSearch(title)
+        .then((response) => {
+          console.log(response);
+          let videoTitle = response['items'][0]['snippet']['title'];
+          let videoId = response['items'][0]['id']['videoId'];
+
+          let youtubeData = {
+            'videoTitle': videoTitle, 
+            'videoId': videoId
+          }
+
+          let img = new Array();
+          if (result.rows[0] != undefined) {
+            ebaySearch(result.rows[0]['model'], 1)
+            .then((response) => {
+              let listings = response['findItemsAdvancedResponse']['searchResult'][0]['item'];
+              if (listings != undefined) {
+                let item = listings[0];
+                let picture = item['galleryURL'][0];
+                picture = picture.replace("140.jpg", "500.jpg")
+                img[0] = picture;
+              }
+              if (result.rows[1] != undefined) {
+                ebaySearch(result.rows[1]['model'], 1)
+                .then((response) => {
+                  let listings = response['findItemsAdvancedResponse']['searchResult'][0]['item'];
+                  if (listings != undefined) {
+                    let item = listings[0];
+                    let picture = item['galleryURL'][0];
+                    picture = picture.replace("140.jpg", "500.jpg")
+                    img[1] = picture;
+                  }
+                  if (result.rows[2] != undefined) {
+                    ebaySearch(result.rows[2]['model'], 1)
+                    .then((response) => {
+                      let listings = response['findItemsAdvancedResponse']['searchResult'][0]['item'];;
+                      if (listings != undefined) {
+                        let item = listings[0];
+                        let picture = item['galleryURL'][0];
+                        picture = picture.replace("140.jpg", "500.jpg")
+                        img[2] = picture;
+                      }
+                      res.render('pages/details', {'ebayData': ebayData, 'youtubeData': youtubeData, 'results': result.rows, 'img': img, 'searchTerm': req.params['searchItem']});
+                    })
+                  }
+                })
+              }
+            })
+          }
+  
+
+        })
+        .catch((err) => {
+          console.error(err);
+        })
       })
       .catch((err) => {
-        throw err;
-      });
-    
-      } catch (err) {
+        console.error(err);
+      })
+    } 
+    catch (error) {
       console.error(err);
-      res.send("Error " + err);
     }
-  })
-  .listen(PORT, () => console.log(`Listening on ${ PORT }`));
+  }).listen(PORT, () => console.log(`Listening on ${ PORT }`));
+          
+ 

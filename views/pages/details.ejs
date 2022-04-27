@@ -2,24 +2,105 @@
 <html>
     <head>
         <%- include ("../partials/header.ejs") %>
-        <!-- <link rel="stylesheet" href=""> -->
+        <link rel="stylesheet" href="/stylesheets/details.css">
     </head>
 
     <body>
         <%- include ("../partials/nav.ejs") %>
 
-        <div class="container">
-            <h2><%= searchTerm %></h2>
-            <br>
+        <script>
+            // 2. This code loads the IFrame Player API code asynchronously.
+            var tag = document.createElement('script');
 
-            <div class="row w-100 text-center">
+            tag.src = "https://www.youtube.com/iframe_api";
+            var firstScriptTag = document.getElementsByTagName('script')[0];
+            firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
+
+            // 3. This function creates an <iframe> (and YouTube player)
+            //    after the API code downloads.
+            var video1;
+            function onYouTubeIframeAPIReady() {
+                // GPU
+                gpu1 = new YT.Player('video1', {
+                height: '390',
+                width: '640',
+                videoId: '<%= youtubeData.videoId %>',
+                playerVars: {
+                    'playsinline': 1
+                },
+                events: {
+                    'onReady': onPlayerReady,
+                    'onStateChange': onPlayerStateChange
+                }
+                });
+            }
+
+            // 4. The API will call this function when the video player is ready.
+            function onPlayerReady(event) {
+                //event.target.playVideo();
+            }
+
+            // 5. The API calls this function when the player's state changes.
+            //    The function indicates that when playing a video (state=1),
+            //    the player should play for six seconds and then stop.
+            var done = false;
+            function onPlayerStateChange(event) {
+                if (event.data == YT.PlayerState.PLAYING && !done) {
+                setTimeout(stopVideo, 6000);
+                done = true;
+                }
+            }
+            function stopVideo() {
+                video1.stopVideo();
+            }
+
+            function newRoute(model){
+                location.href = '/product/' + model;
+            }
+        </script>
+
+        <div class="container" style="margin-top: 100px;">
+            <div class="row w-100" style="margin-bottom: 25px;">
                 <div class="col-sm-4">
-                  One of two columns for image
+                    <img src="<%= ebayData.picture %>" alt="" style="width: 100%">
                 </div>
                 <div class="col-sm-8">
-                  One of two columns for description
+                    <h1><%= ebayData.title %></h1>
+                    <h3>Price: <%= ebayData.price %></h4>
+                    <h3>Link: <a href="<%= ebayData.link %>" target="_blank"><%= ebayData.link %></a></h3>
+                    <h3>Seller Location: <%= ebayData.location %></h3>
+                    <button type="button" class="btn btn-primary">Add to cart <i class="fa-solid fa-cart-arrow-down"></i></button>
                 </div>
-              </div>
+            </div>
+            <div class="relevantVideos">
+                <hr style="border: solid black thin;">
+                <h1>Videos:</h1>
+                <div class="row w-100 text-center" style="margin-top: 50px;">
+                    <h3><%= youtubeData.videoTitle %></h3>
+                    <div id="video1">Player 1</div>
+                </div>
+            </div>
+            <div class="altParts">
+                <hr style="border: solid black thin;">
+                <h1>Alternative Parts:</h1>
+                <% var model1 = JSON.stringify(results[0]['model']).replace(/"/g,"") %>
+                <% var model2 = JSON.stringify(results[1]['model']).replace(/"/g,"") %>
+                <% var model3 = JSON.stringify(results[2]['model']).replace(/"/g,"") %>
+                <div class="row w-100 text-center col-gap" style="margin-top: 50px;">
+                    <div class="col-sm-4" onclick="newRoute('<%= model1 %>')">
+                        <h3><%= model1 %></h3>
+                        <img src="<%= img[0] %>" alt="" style="width: 300px; height: 300px;">
+                    </div>
+                    <div class="col-sm-4" onclick="newRoute('<%= model2 %>')">
+                        <h3><%= model2 %></h3>
+                        <img src="<%= img[1] %>" alt="" style="width: 300px; height: 300px;">
+                    </div>
+                    <div class="col-sm-4" onclick="newRoute('<%= model3 %>')">
+                        <h3><%= model3 %></h3>
+                        <img src="<%= img[2] %>" alt="" style="width: 300px; height: 300px;">
+                    </div>
+                </div>
+            </div>
         </div>
     </body>
 </html>
