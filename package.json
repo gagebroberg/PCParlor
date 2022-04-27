@@ -19,7 +19,7 @@
     "jsdom": "^19.0.0",
     "mdb-ui-kit": "^3.11.0",
     "pg": "^8.7.3",
-    "puppeteer": "^13.5.2",
+    "puppeteer": "^13.6.0",
     "require": "^2.4.20",
     "requirejs": "^2.3.6",
     "sequelize": "^6.19.0",
