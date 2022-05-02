@@ -69,7 +69,7 @@ async function facebookSearch(searchTerm) {
 
   const items = await page.evaluate(getItems);
   // resend request up to 3 times
-  for (let i = 0; (i < 3) && (items.length == 0); i++){
+  for (let i = 0; (i < 5) && (items.length == 0); i++){
     items = await page.evaluate(getItems);    
   }
   
