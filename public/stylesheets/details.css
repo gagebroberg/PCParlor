@@ -1,0 +1,23 @@
+.col-sm-4 {
+    cursor: pointer;
+}
+
+.altParts {
+    margin-bottom: 100px;
+}
+
+u {
+    margin-top: 50px;
+}
+
+.fa-arrow-trend-up {
+    color: rgb(3, 168, 3);
+}
+
+.fa-arrow-trend-down {
+    color: red;
+}
+
+.active {
+    display: block !important;
+}

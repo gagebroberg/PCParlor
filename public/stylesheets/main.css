@@ -19,8 +19,13 @@ body#home {
   padding: 3px 20px;
 }
 
-tr:hover {
+tr.data:hover {
   background-color: lightgrey;
+  cursor: pointer;
+}
+
+th {
+  cursor: pointer;
 }
 
 .input-group {

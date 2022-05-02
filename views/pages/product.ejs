@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <%- include ("../partials/header.ejs") %>
+        <!-- <link rel="stylesheet" href=""> -->
+    </head>
+
+    <body>
+        <%- include ("../partials/nav.ejs") %>
+
+        <div class="container">
+
+            <!-- Page title -->
+            <h2><%= searchTerm %></h2>
+            <br>
+            <p>Found the following <%= ebayItemCount + facebookItemCount %> items:</p>
+
+            <script>
+                function newRoute(searchItem, searchId) {
+                    location.href = '/details/' + searchItem + '/' + searchId;
+                }
+            </script>
+
+            <div id="table" style="border: solid #ddd 2px; border-radius: 10px; overflow: hidden;">
+                <table class="table">
+                    <tr class="header">
+                        <th>Product Title <i class="fa-solid fa-caret-down"></i></th>
+                        <th>Picture <i class="fa-solid fa-caret-down"></i></th>
+                        <th>Seller Location <i class="fa-solid fa-caret-down"></i></th>
+                        <th>Price <i class="fa-solid fa-caret-down"></i></th>
+                    </tr>
+                <% ebayData.forEach(function(item) { %>
+                    <tr class="data" onClick="newRoute('<%= searchTerm %>', '<%= item.id %>')">
+                        <td><%= item.title %></td>
+                        <td><img src="<%= item.picture %>" alt=""></td>
+                        <td><%= item.location %></td>
+                        <td><%= item.price %></td>
+                    </tr>
+                <% }); %>
+                <% facebookData.forEach(function(item) { %>
+                    <tr class="data" onClick="newRoute('<%= item.title %>')">
+                        <td><%= item.title %></td>
+                        <td><img src="<%= item.imgLink %>" alt="" style="width: 140px"></td>
+                        <td><%= item.sellerCity %></td>
+                        <td><%= item.price %></td>
+                    </tr>
+                <% }); %>
+                </table>
+            </div>
+        </div>
+    </body>
+</html>

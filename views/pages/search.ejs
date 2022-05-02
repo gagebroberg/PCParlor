@@ -8,30 +8,50 @@
 
 <%- include ("../partials/nav.ejs") %>
 
+<script> 
+  onClick = function() {
+    let search = document.getElementById("search").value;
+    let alert = document.getElementById("warning");
+    if (search != '') {
+      location.href = "/search?searchquery=" + search;
+      alert.classList.remove("active");
+    } else if (!alert.classList.contains("active")) {
+      alert.classList.add("active");
+    }
+  };
+</script>
+
+<div class="container" id="search-bar">
+  <div class="input-group">
+    <input id="search" type="search" class="form-control" placeholder="Search for a part">
+    <div class="input-group-btn">
+      <button class="btn btn-primary" id="search-button" type="submit" onclick="onClick();">
+        <i class="glyphicon glyphicon-search"></i>
+      </button>
+    </div>
+  </div>
+  <div class="alert alert-warning" id="warning" role="alert">
+    Give us something to search for!
+  </div>
+</div>
+
+<script>
+  let input = document.getElementById("search");
+  input.addEventListener("keyup", function(event) {
+    // Number 13 is the "Enter" key on the keyboard
+    if (event.keyCode === 13) {
+      // Cancel the default action, if needed
+      event.preventDefault();
+      // Trigger the button element with a click
+      document.getElementById("search-button").click();
+    }
+  });
+</script>
+
 <div class="container">
 <h2>Search Results</h2>
 
-<!-- Outputs the content of the results var passed to the file from index.js as a list -->
-<table>
-      <tr>
-        <th>Type</th>
-        <th>Number</th>
-        <th>Brand</th>
-        <th>Model</th>
-        <th>Rank</th>
-        <th>Benchmark</th>
-      </tr>
-    <% results.forEach(function(r) { %>
-      <tr>
-        <td><%= r.type %></td>
-        <td><%= r.number %></td>
-        <td><%= r.brand %></td>
-        <td><%= r.model %></td>
-        <td><%= r.rank %></td>
-        <td><%= r.benchmark %></td>
-      </tr>
-    <% }); %>
-</table>
+<%- include ("../partials/table.ejs") %>
 
 </div>
 

@@ -1,12 +1,13 @@
 require('dotenv').config()
 const express = require('express');
+const { range } = require('express/lib/request');
 const path = require('path');
 const { Pool } = require('pg');
 const { ConsoleMessage } = require('puppeteer');
 const PORT = process.env.PORT || 5000;
 const ebaySearch = require('./ebaySearch.js').ebaySearch;
-
-
+const youtubeSearch = require('./youTubeSearch.js').youtubeData;
+const facebookSearch = require('./facebookSearch.js').facebookSearch;
 pool = new Pool({
   connectionString: process.env.DATABASE_URL,
   ssl: {
@@ -23,8 +24,6 @@ express()
   })
   .get('/search', async (req, res) => {
     try {
-
-      // TODO: Dumps into cpu route right now no matter what. Probably want search route to display "Products". Also only searches model name.
       const client = await pool.connect();
       const result = await client.query("SELECT * FROM cpu WHERE LOWER(model) LIKE LOWER('%" + req.query['searchquery'] + "%') UNION "
                                       + "SELECT * FROM gpu WHERE LOWER(model) LIKE LOWER('%" + req.query['searchquery'] + "%') UNION "
@@ -46,7 +45,7 @@ express()
       const client = await pool.connect();
       const result = await client.query("SELECT * FROM cpu");
       const results = { 'results': (result) ? result.rows : null};
-      res.render('pages/cpu', results );
+      res.render('pages/cpu', results);
       client.release();
     } catch (err) {
       console.error(err);
@@ -145,26 +144,115 @@ express()
       res.send("Error " + err);
     }
   })
-  .get('/details/:search', async (req, res) => {
+  .get('/product/:search', async (req, res) => {
     try {
       let searchTerm = req.params['search'];
-      ebaySearch(searchTerm)
+      let ebayData = new Array();
+      ebaySearch(searchTerm, 1)
       .then((searchResponse) => {
         let listings = searchResponse['findItemsAdvancedResponse']['searchResult'][0]['item'];
         
+        for (let itemnum = 0; itemnum < 100; itemnum++) {
+          if (listings == undefined) {
+            break;
+          }
+          let item = listings[itemnum];
+          if (item == undefined) {
+            break;
+          }
+          let id = item['itemId'][0];
+          let title = item['title'][0];
+          let picture = item['galleryURL'][0];
+          let link = item['viewItemURL'][0];
+          let location = item['location'][0];
+          location = location.replace(/,/g, ", ");
+          let country = item['country'][0];        
+          let sellingStatus = item['sellingStatus'];
+          let price = "$" + sellingStatus[0]['currentPrice'][0]['_']
+          if (/\.[0-9]$/.test(price)) {
+            price = price + "0";
+          }
+          let currency = sellingStatus[0]['currentPrice'][0]['$']['currencyId'];
+
+          ebayData[itemnum] = {
+            'id': id,
+            'title': title,
+            'picture': picture,
+            'link': link,
+            'location': location,
+            'country': country,
+            'price': price,
+            'currency': currency
+          }
+        }
+
+        facebookSearch(searchTerm)
+        .then((facebookData) => {
+          res.render('pages/product', {
+            'ebayData': ebayData, 
+            'ebayItemCount': ebayData.length,
+            'facebookData': facebookData, 
+            'facebookItemCount': facebookData.length, 
+            'searchTerm': searchTerm});
+        })
+        .catch((err) => {
+          console.error(err);
+        })
+      })
+      .catch((err) => {
+        throw err;
+      });
+
+    
+      } catch (err) {
+      console.error(err);
+      res.send("Error " + err);
+    }
+  })
+  .get('/details/:searchItem/:searchId', async (req, res) => {
+    try {
+      // TODO: Change from just CPU to all 
+      const client = await pool.connect();
+      // query grab the rank of the item model
+      console.log("SELECT rank FROM cpu WHERE LOWER(model) = LOWER('" + req.params['searchItem'] + "')")
+      var cpuRank = await client.query("SELECT rank FROM cpu WHERE LOWER(model) = LOWER('" + req.params['searchItem'] + "');");
+      var gpuRank = await client.query("SELECT rank FROM gpu WHERE LOWER(model) = LOWER('" + req.params['searchItem'] + "');");
+      var ssdRank = await client.query("SELECT rank FROM ssd WHERE LOWER(model) = LOWER('" + req.params['searchItem'] + "');");
+      var hddRank = await client.query("SELECT rank FROM hdd WHERE LOWER(model) = LOWER('" + req.params['searchItem'] + "');");
+      var ramRank = await client.query("SELECT rank FROM ram WHERE LOWER(model) = LOWER('" + req.params['searchItem'] + "');");
+      var usbRank = await client.query("SELECT rank FROM usb WHERE LOWER(model) = LOWER('" + req.params['searchItem'] + "');");
+      var result;
+      if (cpuRank['rowCount'] != 0) {
+        result = await client.query("(SELECT * FROM cpu WHERE rank > " + cpuRank.rows[0]['rank'] + " LIMIT 3) UNION ALL (SELECT * FROM cpu WHERE rank < " + cpuRank.rows[0]['rank'] + " ORDER BY rank DESC LIMIT 3);"); 
+      } else if (gpuRank['rowCount'] != 0) {
+        result = await client.query("(SELECT * FROM gpu WHERE rank > " + gpuRank.rows[0]['rank'] + " LIMIT 3) UNION ALL (SELECT * FROM cpu WHERE rank < " + gpuRank.rows[0]['rank'] + " ORDER BY rank DESC LIMIT 3);"); 
+      } else if (ssdRank['rowCount'] != 0) {
+        result = await client.query("(SELECT * FROM ssd WHERE rank > " + ssdRank.rows[0]['rank'] + " LIMIT 3) UNION ALL (SELECT * FROM ssd WHERE rank < " + ssdRank.rows[0]['rank'] + " ORDER BY rank DESC LIMIT 3);"); 
+      } else if (hddRank['rowCount'] != 0) {
+        result = await client.query("(SELECT * FROM hdd WHERE rank > " + hddRank.rows[0]['rank'] + " LIMIT 3) UNION ALL (SELECT * FROM hdd WHERE rank < " + hddRank.rows[0]['rank'] + " ORDER BY rank DESC LIMIT 3);"); 
+      } else if (ramRank['rowCount'] != 0) {
+        result = await client.query("(SELECT * FROM ram WHERE rank > " + ramRank.rows[0]['rank'] + " LIMIT 3) UNION ALL (SELECT * FROM ram WHERE rank < " + ramRank.rows[0]['rank'] + " ORDER BY rank DESC LIMIT 3);"); 
+      } else if (usbRank['rowCount'] != 0) {
+        result = await client.query("(SELECT * FROM usb WHERE rank > " + usbRank.rows[0]['rank'] + " LIMIT 3) UNION ALL (SELECT * FROM usb WHERE rank < " + usbRank.rows[0]['rank'] + " ORDER BY rank DESC LIMIT 3);"); 
+      }
+      console.log(result.rows)
+      let searchTerm = req.params['searchId'];
+      ebaySearch(searchTerm, 1)
+      .then((searchResponse) => {
+        let listings = searchResponse['findItemsAdvancedResponse']['searchResult'][0]['item'];
         let item = listings[0];
         let title = item['title'][0];
         let picture = item['galleryURL'][0];
+        picture = picture.replace("140.jpg", "500.jpg")
         let link = item['viewItemURL'][0];
         let location = item['location'][0];
-        let country = item['country'][0];
-        let shippingInfo = item['shippingInfo'][0];
-        
+        location = location.replace(/,/g, ", ");
+        let country = item['country'][0];        
         let sellingStatus = item['sellingStatus'];
-        let price = sellingStatus[0]['currentPrice'][0]['_']
+        let price = "$" + sellingStatus[0]['currentPrice'][0]['_']
         let currency = sellingStatus[0]['currentPrice'][0]['$']['currencyId'];
 
-        let ebayData = {
+        ebayData = {
           'title': title,
           'picture': picture,
           'link': link,
@@ -174,23 +262,133 @@ express()
           'currency': currency
         }
 
-        // console.log(ebayData);
+        youtubeSearch(title)
+        .then((response) => {
+          var videoTitle;
+          var videoId;
+          var youtubeData;
+          
+          if (response['items'] == undefined) {
+            youtubeData = {
+              'videoTitle': 'Ran out of youtube requests', 
+              'videoId': 'dQw4w9WgXcQ'
+              }
+          } else {
+            if (response['items'][0] == undefined) {
+              youtubeData = {
+              'videoTitle': 'Couldn\'t find a video, so enjoy this instead', 
+              'videoId': 'dQw4w9WgXcQ'
+              }
+            } else {
+              videoTitle = response['items'][0]['snippet']['title'];
+              videoId = response['items'][0]['id']['videoId'];
+              youtubeData = {
+                'videoTitle': videoTitle, 
+                'videoId': videoId
+              }
+            }
+          }
+          
+          let img = new Array();
+          if (result.rows[0] != undefined) {
+            ebaySearch(result.rows[0]['model'], 1)
+            .then((response) => {
+              let listings = response['findItemsAdvancedResponse']['searchResult'][0]['item'];
+              if (listings != undefined) {
+                let item = listings[0];
+                let picture = item['galleryURL'][0];
+                picture = picture.replace("140.jpg", "500.jpg");
+                img[0] = picture;
+              }
+              if (result.rows[1] != undefined) {
+                ebaySearch(result.rows[1]['model'], 1)
+                .then((response) => {
+                  let listings = response['findItemsAdvancedResponse']['searchResult'][0]['item'];
+                  if (listings != undefined) {
+                    let item = listings[0];
+                    let picture = item['galleryURL'][0];
+                    picture = picture.replace("140.jpg", "500.jpg");
+                    img[1] = picture;
+                  }
+                  if (result.rows[2] != undefined) {
+                    ebaySearch(result.rows[2]['model'], 1)
+                    .then((response) => {
+                      let listings = response['findItemsAdvancedResponse']['searchResult'][0]['item'];
+                      if (listings != undefined) {
+                        let item = listings[0];
+                        let picture = item['galleryURL'][0];
+                        picture = picture.replace("140.jpg", "500.jpg");
+                        img[2] = picture;
+                      }
+                      if (result.rows[3] != undefined) {
+                        ebaySearch(result.rows[3]['model'], 1)
+                        .then((response) => {
+                          let listings = response['findItemsAdvancedResponse']['searchResult'][0]['item'];
+                          if (listings != undefined) {
+                            let item = listings[0];
+                            let picture = item['galleryURL'][0];
+                            picture = picture.replace("140.jpg", "500.jpg");
+                            img[3] = picture;
+                          }
+                          if (result.rows[4] != undefined) {
+                            ebaySearch(result.rows[4]['model'], 1)
+                            .then((response) => {
+                              let listings = response['findItemsAdvancedResponse']['searchResult'][0]['item'];
+                              if (listings != undefined) {
+                                let item = listings[0];
+                                let picture = item['galleryURL'][0];
+                                picture = picture.replace("140.jpg", "500.jpg");
+                                img[4] = picture;
+                              }
+                              if (result.rows[5] != undefined) {
+                                ebaySearch(result.rows[5]['model'], 1)
+                                .then((response) => {
+                                  let listings = response['findItemsAdvancedResponse']['searchResult'][0]['item'];
+                                  if (listings != undefined) {
+                                    let item = listings[0];
+                                    let picture = item['galleryURL'][0];
+                                    picture = picture.replace("140.jpg", "500.jpg");
+                                    img[5] = picture;
+                                  }
+                                  res.render('pages/details', {'ebayData': ebayData, 'cutoff': '3', 'youtubeData': youtubeData, 'results': result.rows, 'img': img, 'searchTerm': req.params['searchItem']});
+                                })
+                              } else {
+                                res.render('pages/details', {'ebayData': ebayData, 'cutoff': '2', 'youtubeData': youtubeData, 'results': result.rows, 'img': img, 'searchTerm': req.params['searchItem']});
+                              }
+                            })
+                          } else {
+                            res.render('pages/details', {'ebayData': ebayData, 'cutoff': '1', 'youtubeData': youtubeData, 'results': result.rows, 'img': img, 'searchTerm': req.params['searchItem']});
+                          }
+                        })
+                      } else {
+                        res.render('pages/details', {'ebayData': ebayData, 'cutoff': '3', 'youtubeData': youtubeData, 'results': result.rows, 'img': img, 'searchTerm': req.params['searchItem']});
+                      }
+                    })
+                  } else {
+                    res.render('pages/details', {'ebayData': ebayData, 'cutoff': '3', 'youtubeData': youtubeData, 'results': result.rows, 'img': img, 'searchTerm': req.params['searchItem']});
+                  }
+                })
+              } else {
+                res.render('pages/details', {'ebayData': ebayData, 'cutoff': '3', 'youtubeData': youtubeData, 'results': result.rows, 'img': img, 'searchTerm': req.params['searchItem']});
+              }
+            })
+          } else {
+            res.render('pages/details', {'ebayData': ebayData, 'cutoff': '3', 'youtubeData': youtubeData, 'results': result.rows, 'img': img, 'searchTerm': req.params['searchItem']});
+          }
 
-        res.render('pages/details', ebayData);
+      })
+      .catch((err) => {
+          console.error(err);
+      });
         
-        // let two_listings = listings.slice(0, 2);
-        // let string_listings = JSON.stringify(two_listings);
-        // res.render('pages/details', {'ebayStuff': string_listings});
       })
       .catch((err) => {
         throw err;
       });
-      
-      // res.render('pages/details', {'ebayStuff': req.params['search']});
-    } catch (error) {
+    
+      } catch (err) {
       console.error(err);
       res.send("Error " + err);
     }
   })
   .listen(PORT, () => console.log(`Listening on ${ PORT }`));
-

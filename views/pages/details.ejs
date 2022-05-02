@@ -2,26 +2,258 @@
 <html>
     <head>
         <%- include ("../partials/header.ejs") %>
-        <!-- <link rel="stylesheet" href=""> -->
+        <link rel="stylesheet" href="/stylesheets/details.css">
     </head>
 
     <body>
         <%- include ("../partials/nav.ejs") %>
 
-        title: <%= title %>
-        <br>
-        picture: <%= picture %>
-        <br>
-        link: <%= link %>
-        <br>
-        location: <%= location %>
-        <br>
-        country: <%= country %>
-        <br>
-        price: <%= price %>
-        <br>
-        currency: <%= currency %>
+        <script>
+            // 2. This code loads the IFrame Player API code asynchronously.
+            var tag = document.createElement('script');
 
+            tag.src = "https://www.youtube.com/iframe_api";
+            var firstScriptTag = document.getElementsByTagName('script')[0];
+            firstScriptTag.parentNode.insertBefore(tag, firstScriptTag);
 
+            // 3. This function creates an <iframe> (and YouTube player)
+            //    after the API code downloads.
+            var video1;
+            function onYouTubeIframeAPIReady() {
+                // GPU
+                gpu1 = new YT.Player('video1', {
+                height: '390',
+                width: '640',
+                videoId: '<%= youtubeData.videoId %>',
+                playerVars: {
+                    'playsinline': 1
+                },
+                events: {
+                    'onReady': onPlayerReady,
+                    'onStateChange': onPlayerStateChange
+                }
+                });
+            }
+
+            // 4. The API will call this function when the video player is ready.
+            function onPlayerReady(event) {
+                //event.target.playVideo();
+            }
+
+            // 5. The API calls this function when the player's state changes.
+            //    The function indicates that when playing a video (state=1),
+            //    the player should play for six seconds and then stop.
+            var done = false;
+            function onPlayerStateChange(event) {
+                if (event.data == YT.PlayerState.PLAYING && !done) {
+                setTimeout(stopVideo, 6000);
+                done = true;
+                }
+            }
+            function stopVideo() {
+                video1.stopVideo();
+            }
+
+            onClick = function() {
+                let infoBtn = document.getElementById("infoBtn");
+                let info = document.getElementById("info");
+                if (info.classList.contains("active")) {
+                    info.classList.remove("active");
+                } else if (!info.classList.contains("active")) {
+                    info.classList.add("active");
+                }
+            };
+
+            function newRoute(model){
+                if (model != "This is the lowest ranked item - Alex" && model != "Only one item ranked lower - Jacob" && model != "Only two items ranked lower - John && model" != "Listen to Alex" && model != "Listen to Jacob") {
+                    location.href = '/product/' + model;
+                }
+            }
+        </script>
+
+        <div class="container" style="margin-top: 100px;">
+            <div class="row w-100" style="margin-bottom: 25px;">
+                <div class="col-sm-4">
+                    <img src="<%= ebayData.picture %>" alt="" style="width: 100%">
+                </div>
+                <div class="col-sm-8">
+                    <h1><%= ebayData.title %></h1>
+                    <h3>Price: <%= ebayData.price %></h4>
+                    <h3>Link: <a href="<%= ebayData.link %>" target="_blank"><%= ebayData.link %></a></h3>
+                    <h3>Seller Location: <%= ebayData.location %></h3>
+                    <button type="button" class="btn btn-primary">Add to cart <i class="fa-solid fa-cart-arrow-down"></i></button>
+                </div>
+            </div>
+            <div class="relevantVideos">
+                <hr style="border: solid black thin;">
+                <h1>Videos:</h1>
+                <div class="row w-100 text-center" style="margin-top: 50px;">
+                    <h3><%= youtubeData.videoTitle %></h3>
+                    <div id="video1">Player 1</div>
+                </div>
+            </div>
+            <div class="altParts">
+                <hr style="border: solid black thin;">
+                <h1>Alternative parts: 
+                    <svg xmlns="http://www.w3.org/2000/svg" id="infoBtn" width="23" height="23" fill="currentColor" class="bi bi-info-circle" viewBox="0 0 16 16" style="cursor: pointer;" onClick="onClick()">
+                    <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/>
+                    <path d="m8.93 6.588-2.29.287-.082.38.45.083c.294.07.352.176.288.469l-.738 3.468c-.194.897.105 1.319.808 1.319.545 0 1.178-.252 1.465-.598l.088-.416c-.2.176-.492.246-.686.246-.275 0-.375-.193-.304-.533L8.93 6.588zM9 4.5a1 1 0 1 1-2 0 1 1 0 0 1 2 0z"/>
+                  </svg>
+                </h1>
+                <div class="alert alert-info" id="info" role="alert" style="display: none;">
+                    The parts listed under the green arrow are the 3 parts ranked just above <%= searchTerm %> by UserBenchmark.
+                    The parts listed under the red arrow are the 3 parts ranked just below <%= searchTerm %> by UserBenchmark.
+                    If there are not 3 parts to list, fewer will be listed and one of us will let you know!
+                </div>
+                <%  
+                    if (results.length == 5 && results[0]['rank'] > 5) {
+                        results[5] = results[4];
+                        results[4] = results[3];
+                        results[3] = results[2];
+                        results[2] = undefined;
+                        img[5] = img[4];
+                        img[4] = img[3];
+                        img[3] = img[2];
+                        img[2] = "../../assets/img/JohnNolenProfile.png";
+                    } else if (results.length == 4 && results[0]['rank'] > 5) {
+                        results[5] = results[3];
+                        results[4] = results[2];
+                        results[3] = results[1];
+                        results[2] = undefined;
+                        results[1] = undefined;
+                        img[5] = img[3];
+                        img[4] = img[2];
+                        img[3] = img[1];
+                        img[2] = "../../assets/img/JohnNolenProfile.png";
+                        img[1] = "../../assets/img/JacobPolandProfile.png";
+                    } else if (results.length == 3 && results[0]['rank'] > 5) {
+                        results[5] = results[2];
+                        results[4] = results[1];
+                        results[3] = results[0];
+                        results[2] = undefined;
+                        results[1] = undefined;
+                        results[0] = undefined;
+                        img[5] = img[2];
+                        img[4] = img[1];
+                        img[3] = img[0];
+                        img[2] = "../../assets/img/JohnNolenProfile.png";
+                        img[1] = "../../assets/img/JacobPolandProfile.png";
+                        img[0] = "../../assets/img/AlexNelsonProfile.png";
+                    }
+
+                    var models = new Array();
+                    var Alex = false;
+                    var Jacob = false;
+                    for (let i = 0; i < 6; i++) {
+                        if (results[i] != undefined) {
+                            models[i] = JSON.stringify(results[i]['model']).replace(/"/g,"");
+                        } else {
+                            if (i == 0 || i == 3) {
+                                if (results[0]['rank'] > 5) {
+                                    models[i] = "This is the lowest ranked item - Alex";
+                                } else {
+                                    models[i] = "This is the highest ranked item - Alex";
+                                }
+                                Alex = true;
+                            } else if (i == 1 || i == 4) {
+                                if (Alex) {
+                                    models[i] = "Listen to Alex";
+                                } else {
+                                    if (results[0]['rank'] > 5) {
+                                        models[i] = "Only one item ranked lower - Jacob";
+                                    } else {
+                                        models[i] = "Only one item ranked higher - Jacob";
+                                    }
+                                    Jacob = true;
+                                }
+                            } else if (i == 2 || i == 5) {
+                                if (Alex) {
+                                    models[i] = "Listen to Alex";
+                                } else if (Jacob) {
+                                    models[i] = "Listen to Jacob";
+                                } else {
+                                    if (results[0]['rank'] > 5) {
+                                        models[i] = "Only two items ranked lower - John";
+                                    } else {
+                                        models[i] = "Only two items ranked higher - John";
+                                    }
+                                }
+                            }
+                        }
+                    }
+                   
+                    var img1;
+                    var img2;
+                    var img3;
+                    var img4;
+                    var img5;
+                    var img6;
+                    if (img[0] == undefined) {
+                        img1 = "../../assets/img/AlexNelsonProfile.png";
+                    } else {
+                        img1 = img[0];
+                    }
+                    if (img[1] == undefined) {
+                        img2 = "../../assets/img/JacobPolandProfile.png";
+                    } else {
+                        img2 = img[1];
+                    }
+                    if (img[2] == undefined) {
+                        img3 = "../../assets/img/JohnNolenProfile.png";
+                    } else {
+                        img3 = img[2];
+                    }
+                    if (img[3] == undefined) {
+                        img4 = "../../assets/img/AlexNelsonProfile.png";
+                    } else {
+                        img4 = img[3];
+                    }
+                    if (img[4] == undefined) {
+                        img5 = "../../assets/img/JacobPolandProfile.png";
+                    } else {
+                        img5 = img[4];
+                    }
+                    if (img[5] == undefined) {
+                        img6 = "../../assets/img/JohnNolenProfile.png";
+                    } else {
+                        img6 = img[5];
+                    }
+                %>
+                <div class="row w-100 text-center col-gap" style="margin-top: 50px;">
+                    <i class="fa-solid fa-arrow-trend-up fa-5x"></i>
+                    <div class="ranked-above">
+                        <div class="col-sm-4" onclick="newRoute('<%= models[3] %>')">
+                            <h3><%= models[3] %></h3>
+                            <img src="<%= img4 %>" alt="" style="width: 300px; height: 300px;">
+                        </div>
+                        <div class="col-sm-4" onclick="newRoute('<%= models[4] %>')">
+                            <h3><%= models[4] %></h3>
+                            <img src="<%= img5 %>" alt="" style="width: 300px; height: 300px;">
+                        </div>
+                        <div class="col-sm-4" onclick="newRoute('<%= models[5] %>')">
+                            <h3><%= models[5] %></h3>
+                            <img src="<%= img6 %>" alt="" style="width: 300px; height: 300px;">
+                        </div>
+                    </div>
+                </div>
+                <div class="row w-100 text-center col-gap" style="margin-top: 50px;">
+                    <h3><u><i class="fa-solid fa-arrow-trend-down fa-3x"></i></u></h3>
+                    <div class="ranked-below">
+                        <div class="col-sm-4" onclick="newRoute('<%= models[0] %>')">
+                            <h3><%= models[0] %></h3>
+                            <img src="<%= img1 %>" alt="" style="width: 300px; height: 300px;">
+                        </div>
+                        <div class="col-sm-4" onclick="newRoute('<%= models[1] %>')">
+                            <h3><%= models[1] %></h3>
+                            <img src="<%= img2 %>" alt="" style="width: 300px; height: 300px;">
+                        </div>
+                        <div class="col-sm-4" onclick="newRoute('<%= models[2] %>')">
+                            <h3><%= models[2] %></h3>
+                            <img src="<%= img3 %>" alt="" style="width: 300px; height: 300px;">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
     </body>
 </html>
