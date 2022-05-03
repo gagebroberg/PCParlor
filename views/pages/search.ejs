@@ -11,23 +11,65 @@
 <script> 
   onClick = function() {
     let search = document.getElementById("search").value;
-    let alert = document.getElementById("warning");
+    let alert  = document.getElementById("warning");
+    let brand1 = document.getElementById("brand1").checked;
+    /*let brand2 = document.getElementById("brand2").checked;
+    let brand3 = document.getElementById("brand3").checked;
+    let minPrice = document.getElementById("min-price").value;
+    let maxPrice = document.getElementById("max-price").value;*/
     if (search != '') {
-      location.href = "/search?searchquery=" + search;
+      let ref = "/search?searchquery=" + search;
+      if (brand1) { ref += "&brand1=amd"; }
+      location.href = ref;
       alert.classList.remove("active");
     } else if (!alert.classList.contains("active")) {
       alert.classList.add("active");
     }
   };
-</script>
+  </script>
 
 <div class="container" id="search-bar">
   <div class="input-group">
     <input id="search" type="search" class="form-control" placeholder="Search for a part">
-    <div class="input-group-btn">
-      <button class="btn btn-primary" id="search-button" type="submit" onclick="onClick();">
-        <i class="glyphicon glyphicon-search"></i>
-      </button>
+    <div class="input-group-btn" role="group">
+      <div class="dropdown dropdown-lg">
+        <button type="button" class="btn btn-default dropdown-toggle" data-toggle="dropdown">
+          <span class="caret"></span>
+        </button>
+        <div class="dropdown-menu dropdown-menu-right" role="menu">
+          <form class="form-horizontal" role="form">
+            <div class="form-group">
+              <label for="contain">Brand:</label>
+              <div id="checkbox-container">
+                <div>
+                  <input  type="checkbox" class="form-check-input" id="brand1">
+                  <label for="brand1">AMD</label>
+                </div>
+                <div>
+                  <input  type="checkbox" class="form-check-input" id="brand2">
+                  <label for="brand1">Intel</label>
+                </div>
+                <div>
+                  <input  type="checkbox" class="form-check-input" id="brand1">
+                  <label for="brand1">Nvidia</label>
+                </div>
+              </div>
+            </div>
+            <div class="form-group">
+              <label for="pricerange" class="control-label">Price Range:</label>
+              <div>
+                <input type="text" class="form-control" id="max-price" placeholder="Max" autocomplete="off">
+                <br>
+                <br>
+                <input type="text" class="form-control" id="min-price" placeholder="Min" autocomplete="off">
+              </div>
+            </div>
+          </form>
+        </div>
+        <button class="btn btn-primary" id="search-button" type="submit" onclick="onClick();">
+          <i class="glyphicon glyphicon-search"></i>
+        </button>
+      </div>
     </div>
   </div>
   <div class="alert alert-warning" id="warning" role="alert">

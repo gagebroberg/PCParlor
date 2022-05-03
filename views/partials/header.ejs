@@ -4,3 +4,60 @@
 <script type="text/javascript" src="//maxcdn.bootstrapcdn.com/bootstrap/3.3.4/js/bootstrap.min.js"></script>
 <link rel="stylesheet" type="text/css" href="/stylesheets/main.css" />
 <script src="https://kit.fontawesome.com/b21c2f80a2.js" crossorigin="anonymous"></script>
+
+<style>
+    .dropdown.dropdown-lg .dropdown-menu {
+        margin-top: -1px;
+        padding: 4px 15px;
+    }
+    
+    .btn-group .btn {
+        border-radius: 0;
+        margin-left: -1px;
+    }
+    .form-horizontal .form-group {
+        margin-left: 0;
+        margin-right: 0;
+    }
+    
+    
+    @media screen and (min-width: 768px) {
+        #boot-search-box {
+            width: 500px;
+            margin: 0 auto;
+        }
+        .dropdown.dropdown-lg {
+            position: static !important;
+        }
+        .dropdown.dropdown-lg .dropdown-menu {
+            min-width: 200px;
+            background-color: white;
+        }
+    }
+</style>
+
+<script>
+    var formValues = JSON.parse(localStorage.getItem('formValues')) || {};
+    var $checkboxes = $("#checkbox-container :checkbox");
+
+    function updateStorage(){
+    $checkboxes.each(function(){
+        formValues[this.id] = this.checked;
+    });
+
+    formValues["buttonText"] = $button.text();
+    localStorage.setItem("formValues", JSON.stringify(formValues));
+    }
+
+    $checkboxes.on("change", function(){
+    updateButtonStatus();
+    updateStorage();
+    });
+
+    // On page load
+    $.each(formValues, function(key, value) {
+    $("#" + key).prop('checked', value);
+    });
+
+    $button.text(formValues["buttonText"]);
+</script>
