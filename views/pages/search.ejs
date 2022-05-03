@@ -13,13 +13,15 @@
     let search = document.getElementById("search").value;
     let alert  = document.getElementById("warning");
     let brand1 = document.getElementById("brand1").checked;
-    /*let brand2 = document.getElementById("brand2").checked;
+    let brand2 = document.getElementById("brand2").checked;
     let brand3 = document.getElementById("brand3").checked;
-    let minPrice = document.getElementById("min-price").value;
+    /*let minPrice = document.getElementById("min-price").value;
     let maxPrice = document.getElementById("max-price").value;*/
     if (search != '') {
       let ref = "/search?searchquery=" + search;
       if (brand1) { ref += "&brand1=amd"; }
+      if (brand2) { ref += "&brand2=intel"; }
+      if (brand3) { ref += "&brand3=nvidia"; }
       location.href = ref;
       alert.classList.remove("active");
     } else if (!alert.classList.contains("active")) {
@@ -50,8 +52,8 @@
                   <label for="brand1">Intel</label>
                 </div>
                 <div>
-                  <input  type="checkbox" class="form-check-input" id="brand1">
-                  <label for="brand1">Nvidia</label>
+                  <input  type="checkbox" class="form-check-input" id="brand3">
+                  <label for="brand3">Nvidia</label>
                 </div>
               </div>
             </div>

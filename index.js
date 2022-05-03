@@ -25,12 +25,35 @@ express()
   .get('/search', async (req, res) => {
     try {
       const client = await pool.connect();
-      const result = await client.query("SELECT * FROM cpu WHERE LOWER(model) LIKE LOWER('%" + req.query['searchquery'] + "%') UNION "
-                                      + "SELECT * FROM gpu WHERE LOWER(model) LIKE LOWER('%" + req.query['searchquery'] + "%') UNION "
-                                      + "SELECT * FROM ssd WHERE LOWER(model) LIKE LOWER('%" + req.query['searchquery'] + "%') UNION "
-                                      + "SELECT * FROM hdd WHERE LOWER(model) LIKE LOWER('%" + req.query['searchquery'] + "%') UNION "
-                                      + "SELECT * FROM ram WHERE LOWER(model) LIKE LOWER('%" + req.query['searchquery'] + "%') UNION "
-                                      + "SELECT * FROM usb WHERE LOWER(model) LIKE LOWER('%" + req.query['searchquery'] + "%') " 
+      if ((req.query['brand1']==undefined)&&(req.query['brand2']==undefined)&&(req.query['brand3']==undefined)) { 
+        req.query['brand1'] = '';
+        req.query['brand2'] = '';
+        req.query['brand3'] = '';
+      }
+      const result = await client.query("SELECT * FROM cpu WHERE LOWER(model) LIKE LOWER('%" + req.query['searchquery'] + "%') "
+                                      + "AND (LOWER(brand) LIKE LOWER('%" + req.query['brand1'] + "%') "
+                                      + "OR LOWER(brand) LIKE LOWER('%" + req.query['brand2'] + "%') "
+                                      + "OR LOWER(brand) LIKE LOWER('%" + req.query['brand3'] + "%')) UNION "
+                                      + "SELECT * FROM gpu WHERE LOWER(model) LIKE LOWER('%" + req.query['searchquery'] + "%') "
+                                      + "AND (LOWER(brand) LIKE LOWER('%" + req.query['brand1'] + "%') "
+                                      + "OR LOWER(brand) LIKE LOWER('%" + req.query['brand2'] + "%') "
+                                      + "OR LOWER(brand) LIKE LOWER('%" + req.query['brand3'] + "%')) UNION "
+                                      + "SELECT * FROM ssd WHERE LOWER(model) LIKE LOWER('%" + req.query['searchquery'] + "%') "
+                                      + "AND (LOWER(brand) LIKE LOWER('%" + req.query['brand1'] + "%') "
+                                      + "OR LOWER(brand) LIKE LOWER('%" + req.query['brand2'] + "%') "
+                                      + "OR LOWER(brand) LIKE LOWER('%" + req.query['brand3'] + "%')) UNION "
+                                      + "SELECT * FROM hdd WHERE LOWER(model) LIKE LOWER('%" + req.query['searchquery'] + "%') "
+                                      + "AND (LOWER(brand) LIKE LOWER('%" + req.query['brand1'] + "%') "
+                                      + "OR LOWER(brand) LIKE LOWER('%" + req.query['brand2'] + "%') "
+                                      + "OR LOWER(brand) LIKE LOWER('%" + req.query['brand3'] + "%')) UNION "
+                                      + "SELECT * FROM ram WHERE LOWER(model) LIKE LOWER('%" + req.query['searchquery'] + "%') "
+                                      + "AND (LOWER(brand) LIKE LOWER('%" + req.query['brand1'] + "%') "
+                                      + "OR LOWER(brand) LIKE LOWER('%" + req.query['brand2'] + "%') "
+                                      + "OR LOWER(brand) LIKE LOWER('%" + req.query['brand3'] + "%')) UNION "
+                                      + "SELECT * FROM usb WHERE LOWER(model) LIKE LOWER('%" + req.query['searchquery'] + "%') "
+                                      + "AND (LOWER(brand) LIKE LOWER('%" + req.query['brand1'] + "%') "
+                                      + "OR LOWER(brand) LIKE LOWER('%" + req.query['brand2'] + "%') "
+                                      + "OR LOWER(brand) LIKE LOWER('%" + req.query['brand3'] + "%')) " 
                                       + "ORDER BY rank");
       const results = { 'results': (result) ? result.rows : null};
       res.render('pages/search', results );
