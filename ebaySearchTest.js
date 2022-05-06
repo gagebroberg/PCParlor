@@ -10,8 +10,7 @@ ebaySearch("rtx 2060", 1)
     if(response['findItemsAdvancedResponse']['ack'] == 'Failure'){
         throw response['findItemsAdvancedResponse']['errorMessage'][0]['error'][0];
     }
-
-
+    
     let listings = response['findItemsAdvancedResponse']['searchResult'][0]['item'];
         
     let two_items = listings.slice(0, 2);
