@@ -1,0 +1,9 @@
+# Ignores for reducing Heroku slug size
+# Unecessary folders
+/data
+/scrum
+
+# Test files
+ebaySearchTest.js
+facebookSearchTest.js
+youtubeDataTest.js
