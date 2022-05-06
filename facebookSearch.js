@@ -61,7 +61,7 @@ async function facebookSearch(searchTerm) {
                 var sellerCity = val['node']['listing']['location']['reverse_geocode']['city_page']['display_name'];
                 var delTypes = val['node']['listing']['delivery_types'];
 
-                var item = {title: title, price: price, link: link, imgLink: imgLink, sellerName: sellerName, sellerCity: sellerCity, delTypes: delTypes}
+                var item = {title: title, price: price, link: link, imgLink: imgLink, sellerName: sellerName, sellerCity: sellerCity, delTypes: delTypes, id:ID}
                 // check if item exists in JSON file of pastItems
                 newItems.push(item);  
             });

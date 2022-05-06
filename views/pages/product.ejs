@@ -16,8 +16,8 @@
             <p>Found the following <%= ebayItemCount + facebookItemCount %> items:</p>
 
             <script>
-                function newRoute(searchItem, searchId) {
-                    location.href = '/details/' + searchItem + '/' + searchId;
+                function newRoute(searchItem, searchId, type) {
+                    location.href = '/details/' + type + '/' + searchItem + '/' + searchId;
                 }
             </script>
 
@@ -30,7 +30,7 @@
                         <th>Price <i class="fa-solid fa-caret-down"></i></th>
                     </tr>
                 <% ebayData.forEach(function(item) { %>
-                    <tr class="data" onClick="newRoute('<%= searchTerm %>', '<%= item.id %>')">
+                    <tr class="data" onClick="newRoute('<%= searchTerm %>', '<%= item.id %>', 'eBay')">
                         <td><%= item.title %></td>
                         <td><img src="<%= item.picture %>" alt=""></td>
                         <td><%= item.location %></td>
@@ -38,7 +38,7 @@
                     </tr>
                 <% }); %>
                 <% facebookData.forEach(function(item) { %>
-                    <tr class="data" onClick="newRoute('<%= item.title %>')">
+                    <tr class="data" onClick="newRoute('<%= searchTerm %>', '<%= item.id %>', 'facebook')">
                         <td><%= item.title %></td>
                         <td><img src="<%= item.imgLink %>" alt="" style="width: 140px"></td>
                         <td><%= item.sellerCity %></td>

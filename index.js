@@ -209,7 +209,7 @@ express()
       res.send("Error " + err);
     }
   })
-  .get('/details/:searchItem/:searchId', async (req, res) => {
+  .get('/details/:platform/:searchItem/:searchId', async (req, res) => {
     try {
       // TODO: Change from just CPU to all 
       const client = await pool.connect();
@@ -237,154 +237,294 @@ express()
       }
       console.log(result.rows)
       let searchTerm = req.params['searchId'];
-      ebaySearch(searchTerm, 1)
-      .then((searchResponse) => {
-        let listings = searchResponse['findItemsAdvancedResponse']['searchResult'][0]['item'];
-        let item = listings[0];
-        let title = item['title'][0];
-        let picture = item['galleryURL'][0];
-        picture = picture.replace("140.jpg", "500.jpg")
-        let link = item['viewItemURL'][0];
-        let location = item['location'][0];
-        location = location.replace(/,/g, ", ");
-        let country = item['country'][0];        
-        let sellingStatus = item['sellingStatus'];
-        let price = "$" + sellingStatus[0]['currentPrice'][0]['_']
-        let currency = sellingStatus[0]['currentPrice'][0]['$']['currencyId'];
 
-        ebayData = {
-          'title': title,
-          'picture': picture,
-          'link': link,
-          'location': location,
-          'country': country,
-          'price': price,
-          'currency': currency
-        }
+      if (req.params['platform']=='eBay') {
+        ebaySearch(searchTerm, 1)
+        .then((searchResponse) => {
+          let listings = searchResponse['findItemsAdvancedResponse']['searchResult'][0]['item'];
+          let item = listings[0];
+          let title = item['title'][0];
+          let picture = item['galleryURL'][0];
+          picture = picture.replace("140.jpg", "500.jpg")
+          let link = item['viewItemURL'][0];
+          let location = item['location'][0];
+          location = location.replace(/,/g, ", ");
+          let country = item['country'][0];        
+          let sellingStatus = item['sellingStatus'];
+          let price = "$" + sellingStatus[0]['currentPrice'][0]['_']
+          let currency = sellingStatus[0]['currentPrice'][0]['$']['currencyId'];
 
-        youtubeSearch(title)
-        .then((response) => {
-          var videoTitle;
-          var videoId;
-          var youtubeData;
-          
-          if (response['items'] == undefined) {
-            youtubeData = {
-              'videoTitle': 'Ran out of youtube requests', 
-              'videoId': 'dQw4w9WgXcQ'
-              }
-          } else {
-            if (response['items'][0] == undefined) {
+          data = {
+            'title': title,
+            'picture': picture,
+            'link': link,
+            'location': location,
+            'country': country,
+            'price': price,
+            'currency': currency
+          }
+
+          youtubeSearch(title)
+          .then((response) => {
+            var videoTitle;
+            var videoId;
+            var youtubeData;
+            
+            if (response['items'] == undefined) {
               youtubeData = {
-              'videoTitle': 'Couldn\'t find a video, so enjoy this instead', 
-              'videoId': 'dQw4w9WgXcQ'
-              }
+                'videoTitle': 'Ran out of youtube requests', 
+                'videoId': 'dQw4w9WgXcQ'
+                }
             } else {
-              videoTitle = response['items'][0]['snippet']['title'];
-              videoId = response['items'][0]['id']['videoId'];
-              youtubeData = {
-                'videoTitle': videoTitle, 
-                'videoId': videoId
+              if (response['items'][0] == undefined) {
+                youtubeData = {
+                'videoTitle': 'Couldn\'t find a video, so enjoy this instead', 
+                'videoId': 'dQw4w9WgXcQ'
+                }
+              } else {
+                videoTitle = response['items'][0]['snippet']['title'];
+                videoId = response['items'][0]['id']['videoId'];
+                youtubeData = {
+                  'videoTitle': videoTitle, 
+                  'videoId': videoId
+                }
               }
             }
-          }
+            
+            let img = new Array();
+            if (result.rows[0] != undefined) {
+              ebaySearch(result.rows[0]['model'], 1)
+              .then((response) => {
+                let listings = response['findItemsAdvancedResponse']['searchResult'][0]['item'];
+                if (listings != undefined) {
+                  let item = listings[0];
+                  let picture = item['galleryURL'][0];
+                  picture = picture.replace("140.jpg", "500.jpg");
+                  img[0] = picture;
+                }
+                if (result.rows[1] != undefined) {
+                  ebaySearch(result.rows[1]['model'], 1)
+                  .then((response) => {
+                    let listings = response['findItemsAdvancedResponse']['searchResult'][0]['item'];
+                    if (listings != undefined) {
+                      let item = listings[0];
+                      let picture = item['galleryURL'][0];
+                      picture = picture.replace("140.jpg", "500.jpg");
+                      img[1] = picture;
+                    }
+                    if (result.rows[2] != undefined) {
+                      ebaySearch(result.rows[2]['model'], 1)
+                      .then((response) => {
+                        let listings = response['findItemsAdvancedResponse']['searchResult'][0]['item'];
+                        if (listings != undefined) {
+                          let item = listings[0];
+                          let picture = item['galleryURL'][0];
+                          picture = picture.replace("140.jpg", "500.jpg");
+                          img[2] = picture;
+                        }
+                        if (result.rows[3] != undefined) {
+                          ebaySearch(result.rows[3]['model'], 1)
+                          .then((response) => {
+                            let listings = response['findItemsAdvancedResponse']['searchResult'][0]['item'];
+                            if (listings != undefined) {
+                              let item = listings[0];
+                              let picture = item['galleryURL'][0];
+                              picture = picture.replace("140.jpg", "500.jpg");
+                              img[3] = picture;
+                            }
+                            if (result.rows[4] != undefined) {
+                              ebaySearch(result.rows[4]['model'], 1)
+                              .then((response) => {
+                                let listings = response['findItemsAdvancedResponse']['searchResult'][0]['item'];
+                                if (listings != undefined) {
+                                  let item = listings[0];
+                                  let picture = item['galleryURL'][0];
+                                  picture = picture.replace("140.jpg", "500.jpg");
+                                  img[4] = picture;
+                                }
+                                if (result.rows[5] != undefined) {
+                                  ebaySearch(result.rows[5]['model'], 1)
+                                  .then((response) => {
+                                    let listings = response['findItemsAdvancedResponse']['searchResult'][0]['item'];
+                                    if (listings != undefined) {
+                                      let item = listings[0];
+                                      let picture = item['galleryURL'][0];
+                                      picture = picture.replace("140.jpg", "500.jpg");
+                                      img[5] = picture;
+                                    }
+                                    res.render('pages/details', {'data': data, 'cutoff': '3', 'youtubeData': youtubeData, 'results': result.rows, 'img': img, 'searchTerm': req.params['searchItem']});
+                                  })
+                                } else {
+                                  res.render('pages/details', {'data': data, 'cutoff': '2', 'youtubeData': youtubeData, 'results': result.rows, 'img': img, 'searchTerm': req.params['searchItem']});
+                                }
+                              })
+                            } else {
+                              res.render('pages/details', {'data': data, 'cutoff': '1', 'youtubeData': youtubeData, 'results': result.rows, 'img': img, 'searchTerm': req.params['searchItem']});
+                            }
+                          })
+                        } else {
+                          res.render('pages/details', {'data': data, 'cutoff': '3', 'youtubeData': youtubeData, 'results': result.rows, 'img': img, 'searchTerm': req.params['searchItem']});
+                        }
+                      })
+                    } else {
+                      res.render('pages/details', {'data': data, 'cutoff': '3', 'youtubeData': youtubeData, 'results': result.rows, 'img': img, 'searchTerm': req.params['searchItem']});
+                    }
+                  })
+                } else {
+                  res.render('pages/details', {'data': data, 'cutoff': '3', 'youtubeData': youtubeData, 'results': result.rows, 'img': img, 'searchTerm': req.params['searchItem']});
+                }
+              })
+            } else {
+              res.render('pages/details', {'data': data, 'cutoff': '3', 'youtubeData': youtubeData, 'results': result.rows, 'img': img, 'searchTerm': req.params['searchItem']});
+            }
+
+        })
+        .catch((err) => {
+            console.error(err);
+        });
           
-          let img = new Array();
-          if (result.rows[0] != undefined) {
-            ebaySearch(result.rows[0]['model'], 1)
-            .then((response) => {
-              let listings = response['findItemsAdvancedResponse']['searchResult'][0]['item'];
-              if (listings != undefined) {
-                let item = listings[0];
-                let picture = item['galleryURL'][0];
-                picture = picture.replace("140.jpg", "500.jpg");
-                img[0] = picture;
-              }
-              if (result.rows[1] != undefined) {
-                ebaySearch(result.rows[1]['model'], 1)
-                .then((response) => {
-                  let listings = response['findItemsAdvancedResponse']['searchResult'][0]['item'];
-                  if (listings != undefined) {
-                    let item = listings[0];
-                    let picture = item['galleryURL'][0];
-                    picture = picture.replace("140.jpg", "500.jpg");
-                    img[1] = picture;
-                  }
-                  if (result.rows[2] != undefined) {
-                    ebaySearch(result.rows[2]['model'], 1)
-                    .then((response) => {
-                      let listings = response['findItemsAdvancedResponse']['searchResult'][0]['item'];
-                      if (listings != undefined) {
-                        let item = listings[0];
-                        let picture = item['galleryURL'][0];
-                        picture = picture.replace("140.jpg", "500.jpg");
-                        img[2] = picture;
-                      }
-                      if (result.rows[3] != undefined) {
-                        ebaySearch(result.rows[3]['model'], 1)
-                        .then((response) => {
-                          let listings = response['findItemsAdvancedResponse']['searchResult'][0]['item'];
-                          if (listings != undefined) {
-                            let item = listings[0];
-                            let picture = item['galleryURL'][0];
-                            picture = picture.replace("140.jpg", "500.jpg");
-                            img[3] = picture;
-                          }
-                          if (result.rows[4] != undefined) {
-                            ebaySearch(result.rows[4]['model'], 1)
-                            .then((response) => {
-                              let listings = response['findItemsAdvancedResponse']['searchResult'][0]['item'];
-                              if (listings != undefined) {
-                                let item = listings[0];
-                                let picture = item['galleryURL'][0];
-                                picture = picture.replace("140.jpg", "500.jpg");
-                                img[4] = picture;
-                              }
-                              if (result.rows[5] != undefined) {
-                                ebaySearch(result.rows[5]['model'], 1)
-                                .then((response) => {
-                                  let listings = response['findItemsAdvancedResponse']['searchResult'][0]['item'];
-                                  if (listings != undefined) {
-                                    let item = listings[0];
-                                    let picture = item['galleryURL'][0];
-                                    picture = picture.replace("140.jpg", "500.jpg");
-                                    img[5] = picture;
-                                  }
-                                  res.render('pages/details', {'ebayData': ebayData, 'cutoff': '3', 'youtubeData': youtubeData, 'results': result.rows, 'img': img, 'searchTerm': req.params['searchItem']});
-                                })
-                              } else {
-                                res.render('pages/details', {'ebayData': ebayData, 'cutoff': '2', 'youtubeData': youtubeData, 'results': result.rows, 'img': img, 'searchTerm': req.params['searchItem']});
-                              }
-                            })
-                          } else {
-                            res.render('pages/details', {'ebayData': ebayData, 'cutoff': '1', 'youtubeData': youtubeData, 'results': result.rows, 'img': img, 'searchTerm': req.params['searchItem']});
-                          }
-                        })
-                      } else {
-                        res.render('pages/details', {'ebayData': ebayData, 'cutoff': '3', 'youtubeData': youtubeData, 'results': result.rows, 'img': img, 'searchTerm': req.params['searchItem']});
-                      }
-                    })
-                  } else {
-                    res.render('pages/details', {'ebayData': ebayData, 'cutoff': '3', 'youtubeData': youtubeData, 'results': result.rows, 'img': img, 'searchTerm': req.params['searchItem']});
-                  }
-                })
-              } else {
-                res.render('pages/details', {'ebayData': ebayData, 'cutoff': '3', 'youtubeData': youtubeData, 'results': result.rows, 'img': img, 'searchTerm': req.params['searchItem']});
-              }
-            })
-          } else {
-            res.render('pages/details', {'ebayData': ebayData, 'cutoff': '3', 'youtubeData': youtubeData, 'results': result.rows, 'img': img, 'searchTerm': req.params['searchItem']});
+        })
+        .catch((err) => {
+          throw err;
+        });
+      }
+
+      else if (req.params['platform']=='facebook') {
+        facebookSearch(req.params['searchItem'])
+        .then((searchResponse) => {
+          console.log(searchResponse);
+          let listing = searchResponse.find(item => item.id==searchTerm);
+          data = {
+            'title': listing.title,
+            'picture': listing.imgLink,
+            'link': listing.link,
+            'location': listing.sellerCity
           }
 
-      })
-      .catch((err) => {
-          console.error(err);
-      });
-        
-      })
-      .catch((err) => {
-        throw err;
-      });
+          youtubeSearch(listing.title)
+          .then((response) => {
+            var videoTitle;
+            var videoId;
+            var youtubeData;
+            
+            if (response['items'] == undefined) {
+              youtubeData = {
+                'videoTitle': 'Ran out of youtube requests', 
+                'videoId': 'dQw4w9WgXcQ'
+                }
+            } else {
+              if (response['items'][0] == undefined) {
+                youtubeData = {
+                'videoTitle': 'Couldn\'t find a video, so enjoy this instead', 
+                'videoId': 'dQw4w9WgXcQ'
+                }
+              } else {
+                videoTitle = response['items'][0]['snippet']['title'];
+                videoId = response['items'][0]['id']['videoId'];
+                youtubeData = {
+                  'videoTitle': videoTitle, 
+                  'videoId': videoId
+                }
+              }
+            }
+            
+            let img = new Array();
+            if (result.rows[0] != undefined) {
+              ebaySearch(result.rows[0]['model'], 1)
+              .then((response) => {
+                let listings = response['findItemsAdvancedResponse']['searchResult'][0]['item'];
+                if (listings != undefined) {
+                  let item = listings[0];
+                  let picture = item['galleryURL'][0];
+                  picture = picture.replace("140.jpg", "500.jpg");
+                  img[0] = picture;
+                }
+                if (result.rows[1] != undefined) {
+                  ebaySearch(result.rows[1]['model'], 1)
+                  .then((response) => {
+                    let listings = response['findItemsAdvancedResponse']['searchResult'][0]['item'];
+                    if (listings != undefined) {
+                      let item = listings[0];
+                      let picture = item['galleryURL'][0];
+                      picture = picture.replace("140.jpg", "500.jpg");
+                      img[1] = picture;
+                    }
+                    if (result.rows[2] != undefined) {
+                      ebaySearch(result.rows[2]['model'], 1)
+                      .then((response) => {
+                        let listings = response['findItemsAdvancedResponse']['searchResult'][0]['item'];
+                        if (listings != undefined) {
+                          let item = listings[0];
+                          let picture = item['galleryURL'][0];
+                          picture = picture.replace("140.jpg", "500.jpg");
+                          img[2] = picture;
+                        }
+                        if (result.rows[3] != undefined) {
+                          ebaySearch(result.rows[3]['model'], 1)
+                          .then((response) => {
+                            let listings = response['findItemsAdvancedResponse']['searchResult'][0]['item'];
+                            if (listings != undefined) {
+                              let item = listings[0];
+                              let picture = item['galleryURL'][0];
+                              picture = picture.replace("140.jpg", "500.jpg");
+                              img[3] = picture;
+                            }
+                            if (result.rows[4] != undefined) {
+                              ebaySearch(result.rows[4]['model'], 1)
+                              .then((response) => {
+                                let listings = response['findItemsAdvancedResponse']['searchResult'][0]['item'];
+                                if (listings != undefined) {
+                                  let item = listings[0];
+                                  let picture = item['galleryURL'][0];
+                                  picture = picture.replace("140.jpg", "500.jpg");
+                                  img[4] = picture;
+                                }
+                                if (result.rows[5] != undefined) {
+                                  ebaySearch(result.rows[5]['model'], 1)
+                                  .then((response) => {
+                                    let listings = response['findItemsAdvancedResponse']['searchResult'][0]['item'];
+                                    if (listings != undefined) {
+                                      let item = listings[0];
+                                      let picture = item['galleryURL'][0];
+                                      picture = picture.replace("140.jpg", "500.jpg");
+                                      img[5] = picture;
+                                    }
+                                    res.render('pages/details', {'data': data, 'cutoff': '3', 'youtubeData': youtubeData, 'results': result.rows, 'img': img, 'searchTerm': req.params['searchItem']});
+                                  })
+                                } else {
+                                  res.render('pages/details', {'data': data, 'cutoff': '2', 'youtubeData': youtubeData, 'results': result.rows, 'img': img, 'searchTerm': req.params['searchItem']});
+                                }
+                              })
+                            } else {
+                              res.render('pages/details', {'data': data, 'cutoff': '1', 'youtubeData': youtubeData, 'results': result.rows, 'img': img, 'searchTerm': req.params['searchItem']});
+                            }
+                          })
+                        } else {
+                          res.render('pages/details', {'data': data, 'cutoff': '3', 'youtubeData': youtubeData, 'results': result.rows, 'img': img, 'searchTerm': req.params['searchItem']});
+                        }
+                      })
+                    } else {
+                      res.render('pages/details', {'data': data, 'cutoff': '3', 'youtubeData': youtubeData, 'results': result.rows, 'img': img, 'searchTerm': req.params['searchItem']});
+                    }
+                  })
+                } else {
+                  res.render('pages/details', {'data': data, 'cutoff': '3', 'youtubeData': youtubeData, 'results': result.rows, 'img': img, 'searchTerm': req.params['searchItem']});
+                }
+              })
+            } else {
+              res.render('pages/details', {'data': data, 'cutoff': '3', 'youtubeData': youtubeData, 'results': result.rows, 'img': img, 'searchTerm': req.params['searchItem']});
+            }
+
+        })
+        .catch((err) => {
+            console.error(err);
+        });
+          
+        })
+        .catch((err) => {
+          throw err;
+        });
+      }
     
       } catch (err) {
       console.error(err);
